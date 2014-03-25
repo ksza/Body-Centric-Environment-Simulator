@@ -2,20 +2,15 @@ package dk.itu.bodysim;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
-import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.collision.shapes.CollisionShape;
-import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.font.BitmapText;
-import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
-import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
-import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Ray;
@@ -24,21 +19,21 @@ import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import dk.itu.bodysim.agent.FirstPersonAgent;
+import dk.itu.bodysim.environment.SimpleEnvironment;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 /**
- * 
+ *
  * @author kszanto
  */
 public class Prototype1 extends SimpleApplication {
 
     private FirstPersonAgent agent;
-    
+    private Node environmentScene;
     private BulletAppState bulletAppState;
     private RigidBodyControl landscape;
 
@@ -46,7 +41,6 @@ public class Prototype1 extends SimpleApplication {
         Prototype1 app = new Prototype1();
         app.start();
     }
-    private Node shootables;
     private Geometry mark;
 
     @Override
@@ -63,33 +57,23 @@ public class Prototype1 extends SimpleApplication {
         flyCam.setMoveSpeed(100);
 
         agent = new FirstPersonAgent();
-        
+
         initCrossHairs(); // a "+" in the middle of the screen to help aiming
         initKeys();       // load custom key mappings
         initMark();       // a red sphere to mark the hit
 
-        /**
-         * create four colored boxes and a floor to shoot at:
-         */
-        shootables = new Node("Shootables");
-//        rootNode.attachChild(shootables);
-        shootables.attachChild(makeCube("a Dragon", -2f, 0f, 1f));
-        shootables.attachChild(makeCube("a tin can", 1f, -2f, 0f));
-        shootables.attachChild(makeCube("the Sheriff", 0f, 1f, -2f));
-        shootables.attachChild(makeCube("the Deputy", 1f, 0f, -4f));
-        shootables.attachChild(makeFloor());
-        shootables.attachChild(makeCharacter());
-
+        environmentScene = new SimpleEnvironment(assetManager);
+        
         // We set up collision detection for the scene by creating a
         // compound collision shape and a static RigidBodyControl with mass zero.
         CollisionShape sceneShape =
-                CollisionShapeFactory.createMeshShape(shootables);
+                CollisionShapeFactory.createMeshShape(environmentScene);
         landscape = new RigidBodyControl(sceneShape, 0);
-        shootables.addControl(landscape);
+        environmentScene.addControl(landscape);
 
         // We attach the scene and the player to the rootnode and the physics space,
         // to make them appear in the game world.
-        rootNode.attachChild(shootables);
+        rootNode.attachChild(environmentScene);
         bulletAppState.getPhysicsSpace().add(landscape);
         bulletAppState.getPhysicsSpace().add(agent);
     }
@@ -124,10 +108,10 @@ public class Prototype1 extends SimpleApplication {
      * Declaring the "Shoot" action and mapping to its triggers.
      */
     private void initKeys() {
-        inputManager.addMapping("Shoot",                
+        inputManager.addMapping("Shoot",
                 new MouseButtonTrigger(MouseInput.BUTTON_LEFT)); // left-button click
         inputManager.addListener(shootListener, "Shoot");
-        
+
         agent.initKeys(inputManager);
     }
     /**
@@ -148,12 +132,12 @@ public class Prototype1 extends SimpleApplication {
                 // 2. Aim the ray from cam loc to cam direction.
                 Ray ray = new Ray(cam.getLocation(), cam.getDirection());
                 // 3. Collect intersections between Ray and Shootables in results list.
-                shootables.collideWith(ray, results);
+                environmentScene.collideWith(ray, results);
                 // 4. Print the results
 
                 /* !! ALL Visible items! */
                 int x = 0;
-                for (Spatial g : shootables.getChildren()) {
+                for (Spatial g : environmentScene.getChildren()) {
                     if (g.getLastFrustumIntersection() == Camera.FrustumIntersect.Outside) {
                     } else {
                         x++;
@@ -185,32 +169,6 @@ public class Prototype1 extends SimpleApplication {
     };
 
     /**
-     * A cube object for target practice
-     */
-    protected Geometry makeCube(String name, float x, float y, float z) {
-        Box box = new Box(1, 1, 1);
-        Geometry cube = new Geometry(name, box);
-        cube.setLocalTranslation(x, y, z);
-        Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat1.setColor("Color", ColorRGBA.randomColor());
-        cube.setMaterial(mat1);
-        return cube;
-    }
-
-    /**
-     * A floor to show that the "shot" can go through several objects.
-     */
-    protected Geometry makeFloor() {
-        Box box = new Box(100, .2f, 100);
-        Geometry floor = new Geometry("the Floor", box);
-        floor.setLocalTranslation(0, -4, -5);
-        Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat1.setColor("Color", ColorRGBA.Gray);
-        floor.setMaterial(mat1);
-        return floor;
-    }
-
-    /**
      * A red ball that marks the last spot that was "hit" by the "shot".
      */
     protected void initMark() {
@@ -233,19 +191,6 @@ public class Prototype1 extends SimpleApplication {
         ch.setLocalTranslation( // center
                 settings.getWidth() / 2 - ch.getLineWidth() / 2, settings.getHeight() / 2 + ch.getLineHeight() / 2, 0);
         guiNode.attachChild(ch);
-    }
-
-    protected Spatial makeCharacter() {
-        // load a character from jme3test-test-data
-        Spatial golem = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
-        golem.scale(0.5f);
-        golem.setLocalTranslation(-1.0f, -1.5f, -0.6f);
-
-        // We must add a light to make the model visible
-        DirectionalLight sun = new DirectionalLight();
-        sun.setDirection(new Vector3f(-0.1f, -0.7f, -1.0f));
-        golem.addLight(sun);
-        return golem;
     }
 
     @Override
