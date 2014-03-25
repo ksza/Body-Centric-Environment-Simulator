@@ -61,8 +61,8 @@ public class Prototype1 extends SimpleApplication {
         initCrossHairs(); // a "+" in the middle of the screen to help aiming
         initKeys();       // load custom key mappings
         initMark();       // a red sphere to mark the hit
-
         environmentScene = new SimpleEnvironment(assetManager);
+
         
         // We set up collision detection for the scene by creating a
         // compound collision shape and a static RigidBodyControl with mass zero.

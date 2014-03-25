@@ -9,6 +9,9 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
+import com.jme3.terrain.geomipmap.TerrainQuad;
+import com.jme3.texture.Texture;
+import com.jme3.texture.Texture.WrapMode;
 
 /**
  * A really simple scene resembling the structure of a room. It comprises of
@@ -26,13 +29,13 @@ public class SimpleEnvironment extends Node {
         super(SCENE_NAME);
 
         this.assetManager = assetManager;
-        
+
         this.attachChild(makeCube("a Dragon", -2f, 0f, 1f));
         this.attachChild(makeCube("a tin can", 1f, -2f, 0f));
         this.attachChild(makeCube("the Sheriff", 0f, 1f, -2f));
         this.attachChild(makeCube("the Deputy", 1f, 0f, -4f));
         this.attachChild(makeFloor());
-        this.attachChild(makeCharacter());        
+        this.attachChild(makeCharacter());
     }
 
     private Geometry makeCube(String name, float x, float y, float z) {
@@ -45,14 +48,24 @@ public class SimpleEnvironment extends Node {
         return cube;
     }
 
-    private Geometry makeFloor() {
-        Box box = new Box(100, .2f, 100);
-        Geometry floor = new Geometry("the Floor", box);
-        floor.setLocalTranslation(0, -4, -5);
-        Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat1.setColor("Color", ColorRGBA.Gray);
-        floor.setMaterial(mat1);
-        return floor;
+    private Spatial makeFloor() {
+
+        final Material floorMaterial = new Material(assetManager, "Common/MatDefs/Terrain/Terrain.j3md");
+            floorMaterial.setTexture("Alpha", assetManager.loadTexture(
+            "Textures/Terrain/splat/alphamap.png"));
+        
+        final Texture floorTexture = assetManager.loadTexture("Textures/floor_wood.jpg");        
+        floorTexture.setWrap(WrapMode.Repeat);
+        
+        floorMaterial.setTexture("Tex1", floorTexture);
+        floorMaterial.setTexture("Tex2", floorTexture);
+        floorMaterial.setTexture("Tex3", floorTexture);
+        
+        final TerrainQuad terrain = new TerrainQuad("Floor", 65, 513, null);
+        terrain.setMaterial(floorMaterial);
+        terrain.setLocalTranslation(0, -4, -5);
+
+        return terrain;
     }
 
     private Spatial makeCharacter() {
