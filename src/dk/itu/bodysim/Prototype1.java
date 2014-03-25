@@ -26,7 +26,7 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
-import java.util.ArrayList;
+import dk.itu.bodysim.agent.FirstPersonAgent;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,17 +35,12 @@ import java.util.Set;
  * 
  * @author kszanto
  */
-public class Prototype1 extends SimpleApplication implements ActionListener {
+public class Prototype1 extends SimpleApplication {
 
+    private FirstPersonAgent agent;
+    
     private BulletAppState bulletAppState;
     private RigidBodyControl landscape;
-    private CharacterControl player;
-    private Vector3f walkDirection = new Vector3f();
-    private boolean left = false, right = false, up = false, down = false;
-    //Temporary vectors used on each frame.
-    //They here to avoid instanciating new vectors on each frame
-    private Vector3f camDir = new Vector3f();
-    private Vector3f camLeft = new Vector3f();
 
     public static void main(String[] args) {
         Prototype1 app = new Prototype1();
@@ -67,6 +62,8 @@ public class Prototype1 extends SimpleApplication implements ActionListener {
         viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
         flyCam.setMoveSpeed(100);
 
+        agent = new FirstPersonAgent();
+        
         initCrossHairs(); // a "+" in the middle of the screen to help aiming
         initKeys();       // load custom key mappings
         initMark();       // a red sphere to mark the hit
@@ -90,23 +87,11 @@ public class Prototype1 extends SimpleApplication implements ActionListener {
         landscape = new RigidBodyControl(sceneShape, 0);
         shootables.addControl(landscape);
 
-        // We set up collision detection for the player by creating
-        // a capsule collision shape and a CharacterControl.
-        // The CharacterControl offers extra settings for
-        // size, stepheight, jumping, falling, and gravity.
-        // We also put the player in its starting position.
-        CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(1.5f, 6f, 1);
-        player = new CharacterControl(capsuleShape, 0.05f);
-        player.setJumpSpeed(20);
-        player.setFallSpeed(30);
-        player.setGravity(30);
-        player.setPhysicsLocation(new Vector3f(0, 30, 30));
-
         // We attach the scene and the player to the rootnode and the physics space,
         // to make them appear in the game world.
         rootNode.attachChild(shootables);
         bulletAppState.getPhysicsSpace().add(landscape);
-        bulletAppState.getPhysicsSpace().add(player);
+        bulletAppState.getPhysicsSpace().add(agent);
     }
 
     private void computeWorldSpace(final Node node, final Set<Spatial> worldSpace) {
@@ -142,17 +127,8 @@ public class Prototype1 extends SimpleApplication implements ActionListener {
         inputManager.addMapping("Shoot",                
                 new MouseButtonTrigger(MouseInput.BUTTON_LEFT)); // left-button click
         inputManager.addListener(shootListener, "Shoot");
-
-        inputManager.addMapping("Left", new KeyTrigger(KeyInput.KEY_A));
-        inputManager.addMapping("Right", new KeyTrigger(KeyInput.KEY_D));
-        inputManager.addMapping("Up", new KeyTrigger(KeyInput.KEY_W));
-        inputManager.addMapping("Down", new KeyTrigger(KeyInput.KEY_S));
-        inputManager.addMapping("Jump", new KeyTrigger(KeyInput.KEY_SPACE));
-        inputManager.addListener(this, "Left");
-        inputManager.addListener(this, "Right");
-        inputManager.addListener(this, "Up");
-        inputManager.addListener(this, "Down");
-        inputManager.addListener(this, "Jump");
+        
+        agent.initKeys(inputManager);
     }
     /**
      * Defining the "Shoot" action: Determine what was hit and how to respond.
@@ -272,51 +248,8 @@ public class Prototype1 extends SimpleApplication implements ActionListener {
         return golem;
     }
 
-    /**
-     * These are our custom actions triggered by key presses. We do not walk
-     * yet, we just keep track of the direction the user pressed.
-     */
-    public void onAction(String binding, boolean isPressed, float tpf) {
-        if (binding.equals("Left")) {
-            left = isPressed;
-        } else if (binding.equals("Right")) {
-            right = isPressed;
-        } else if (binding.equals("Up")) {
-            up = isPressed;
-        } else if (binding.equals("Down")) {
-            down = isPressed;
-        } else if (binding.equals("Jump")) {
-            if (isPressed) {
-                player.jump();
-            }
-        }
-    }
-
-    /**
-     * This is the main event loop--walking happens here. We check in which
-     * direction the player is walking by interpreting the camera direction
-     * forward (camDir) and to the side (camLeft). The setWalkDirection()
-     * command is what lets a physics-controlled player walk. We also make sure
-     * here that the camera moves with player.
-     */
     @Override
     public void simpleUpdate(float tpf) {
-        camDir.set(cam.getDirection()).multLocal(0.6f);
-        camLeft.set(cam.getLeft()).multLocal(0.4f);
-        walkDirection.set(0, 0, 0);
-        if (left) {
-            walkDirection.addLocal(camLeft);
-        }
-        if (right) {
-            walkDirection.addLocal(camLeft.negate());
-        }
-        if (up) {
-            walkDirection.addLocal(camDir);
-        }
-        if (down) {
-            walkDirection.addLocal(camDir.negate());
-        }
-        player.setWalkDirection(walkDirection);
-        cam.setLocation(player.getPhysicsLocation());
+        agent.onUpdate(cam, tpf);
     }
 }
