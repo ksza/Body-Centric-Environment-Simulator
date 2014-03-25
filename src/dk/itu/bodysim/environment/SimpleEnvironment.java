@@ -12,6 +12,7 @@ import com.jme3.scene.shape.Box;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
+import com.sun.j3d.loaders.Scene;
 
 /**
  * A really simple scene resembling the structure of a room. It comprises of
@@ -34,8 +35,13 @@ public class SimpleEnvironment extends Node {
         this.attachChild(makeCube("a tin can", 1f, -2f, 0f));
         this.attachChild(makeCube("the Sheriff", 0f, 1f, -2f));
         this.attachChild(makeCube("the Deputy", 1f, 0f, -4f));
-        this.attachChild(makeFloor());
+        this.attachChild(makeFloor());        
         this.attachChild(makeCharacter());
+        
+        DirectionalLight dl = new DirectionalLight();
+        dl.setColor(ColorRGBA.White);
+        dl.setDirection(new Vector3f(2.8f, -2.8f, -2.8f).normalizeLocal());
+        this.addLight(dl);
     }
 
     private Geometry makeCube(String name, float x, float y, float z) {
