@@ -21,6 +21,7 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Sphere;
 import dk.itu.bodysim.agent.FirstPersonAgent;
+import dk.itu.bodysim.context.EgocentricContextManager;
 import dk.itu.bodysim.environment.SimpleEnvironment;
 import java.util.HashSet;
 import java.util.List;
@@ -76,6 +77,8 @@ public class Prototype1 extends SimpleApplication {
         rootNode.attachChild(environmentScene);
         bulletAppState.getPhysicsSpace().add(landscape);
         bulletAppState.getPhysicsSpace().add(agent);
+        
+        stateManager.attach(new EgocentricContextManager());
     }
 
     private void computeWorldSpace(final Node node, final Set<Spatial> worldSpace) {

@@ -12,7 +12,7 @@ import com.jme3.scene.shape.Box;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
-import com.sun.j3d.loaders.Scene;
+import dk.itu.bodysim.context.ContextData;
 
 /**
  * A really simple scene resembling the structure of a room. It comprises of
@@ -31,10 +31,10 @@ public class SimpleEnvironment extends Node {
 
         this.assetManager = assetManager;
 
-        this.attachChild(makeCube("a Dragon", -2f, 0f, 1f));
-        this.attachChild(makeCube("a tin can", 1f, -2f, 0f));
-        this.attachChild(makeCube("the Sheriff", 0f, 1f, -2f));
-        this.attachChild(makeCube("the Deputy", 1f, 0f, -4f));
+        this.attachChild(makeCube("Table", -2f, 0f, 1f, 20000));
+        this.attachChild(makeCube("TV", 1f, -2f, 0f, 5500));
+        this.attachChild(makeCube("Chair", 0f, 1f, -2f, 7000));
+        this.attachChild(makeCube("Dude", 1f, 0f, -4f, 70000));
         this.attachChild(makeFloor());        
         this.attachChild(makeCharacter());
         
@@ -44,13 +44,14 @@ public class SimpleEnvironment extends Node {
         this.addLight(dl);
     }
 
-    private Geometry makeCube(String name, float x, float y, float z) {
+    private Geometry makeCube(String name, float x, float y, float z, int weight) {
         Box box = new Box(1, 1, 1);
         Geometry cube = new Geometry(name, box);
         cube.setLocalTranslation(x, y, z);
         Material mat1 = new Material(this.assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat1.setColor("Color", ColorRGBA.randomColor());
         cube.setMaterial(mat1);
+        cube.setUserData("context", new ContextData(weight));
         return cube;
     }
 

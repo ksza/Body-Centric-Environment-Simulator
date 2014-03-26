@@ -37,3 +37,4 @@ logs
 
 *.orig
 aws-keys.properties
+/dist/
