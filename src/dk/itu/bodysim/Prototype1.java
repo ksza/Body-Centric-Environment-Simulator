@@ -1,5 +1,6 @@
 package dk.itu.bodysim;
 
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import dk.itu.bodysim.environment.SimpleEnvironment;
 
@@ -18,4 +19,9 @@ public class Prototype1 extends EgocentricApp {
     protected Node createEnvironmentScene() {
         return new SimpleEnvironment(getAssetManager());
     }      
+
+    @Override
+    public Vector3f getInitialAgentPosition() {
+        return new Vector3f(0, 30, 30);
+    }
 }

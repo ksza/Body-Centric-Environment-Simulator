@@ -4,6 +4,7 @@ import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
+import com.jme3.bounding.BoundingBox;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
@@ -27,7 +28,6 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Sphere;
 import dk.itu.bodysim.EgocentricApp;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -52,9 +52,10 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
     private AppStateManager stateManager;
     private AssetManager assetManager;
     private final PhysicsSpace physicsSpace;
-
+    private Node environment;
     private Geometry mark;
-    
+    private Node inventory;
+
     public FirstPersonAgentAppState(PhysicsSpace physicsSpace) {
         this.physicsSpace = physicsSpace;
     }
@@ -70,21 +71,25 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
         super.initialize(stateManager, app); //To change body of generated methods, choose Tools | Templates.
 
         this.app = (EgocentricApp) app;
+        this.environment = this.app.getEnvironmentScene();
         this.cam = app.getCamera();
         this.stateManager = stateManager;
         this.assetManager = app.getAssetManager();
         this.rootNode = this.app.getRootNode();
+
+        inventory = new Node("Inventory");
+        this.app.getGuiNode().attachChild(inventory);
         
         characterControl = new CharacterControl(new CapsuleCollisionShape(1.5f, 6f, 1), 0.05f);
 
         characterControl.setJumpSpeed(20);
         characterControl.setFallSpeed(30);
         characterControl.setGravity(30);
-        characterControl.setPhysicsLocation(new Vector3f(0, 30, 30));
+        characterControl.setPhysicsLocation(this.app.getInitialAgentPosition());
 
         physicsSpace.add(characterControl);
 
-        initKeys(app.getInputManager());    
+        initKeys(app.getInputManager());
         initCrossHairs(); // a "+" in the middle of the screen to help aiming
         initMark();       // a red sphere to mark the hit
 
@@ -104,7 +109,7 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
         app.getGuiNode().attachChild(ch);
     }
 
-        /**
+    /**
      * A red ball that marks the last spot that was "hit" by the "shot".
      */
     protected void initMark() {
@@ -114,7 +119,7 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
         mark_mat.setColor("Color", ColorRGBA.Red);
         mark.setMaterial(mark_mat);
     }
-    
+
     /**
      * Initialize the keys used to control this agent
      *
@@ -122,10 +127,10 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
      */
     private void initKeys(final InputManager inputManager) {
 
-                inputManager.addMapping("Shoot",
+        inputManager.addMapping("Pick",
                 new MouseButtonTrigger(MouseInput.BUTTON_LEFT)); // left-button click
-        inputManager.addListener(shootListener, "Shoot");
-        
+        inputManager.addListener(pickListener, "Pick");
+
         inputManager.addMapping("Left", new KeyTrigger(KeyInput.KEY_A));
         inputManager.addMapping("Right", new KeyTrigger(KeyInput.KEY_D));
         inputManager.addMapping("Up", new KeyTrigger(KeyInput.KEY_W));
@@ -189,9 +194,8 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
         characterControl.setWalkDirection(agentWalkDirection);
         cam.setLocation(characterControl.getPhysicsLocation());
     }
-    
-    
-        private void computeWorldSpace(final Node node, final Set<Spatial> worldSpace) {
+
+    private void computeWorldSpace(final Node node, final Set<Spatial> worldSpace) {
 
         for (Spatial element : node.getChildren()) {
 //            if (g.getLastFrustumIntersection() == Camera.FrustumIntersect.Outside) {
@@ -216,55 +220,58 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
             }
         }
     }
-        /**
-     * Defining the "Shoot" action: Determine what was hit and how to respond.
-     */
-    private ActionListener shootListener = new ActionListener() {
+    private ActionListener pickListener = new ActionListener() {
         public void onAction(String name, boolean keyPressed, float tpf) {
-            if (name.equals("Shoot") && !keyPressed) {
+            if (name.equals("Pick") && !keyPressed) {
+                if (!inventory.getChildren().isEmpty()) {
 
-                final Set<Spatial> worldSpace = new HashSet<Spatial>();
-                computeWorldSpace(rootNode, worldSpace);
-                for (final Spatial element : worldSpace) {
-                    System.out.println("--> " + element.getName());
-                }
 
-                // 1. Reset results list.
-                CollisionResults results = new CollisionResults();
-                // 2. Aim the ray from cam loc to cam direction.
-                Ray ray = new Ray(cam.getLocation(), cam.getDirection());
-                // 3. Collect intersections between Ray and Shootables in results list.
-                app.getEnvironmentScene().collideWith(ray, results);
-                // 4. Print the results
+                    CollisionResults results = new CollisionResults();
+                    Ray ray = new Ray(cam.getLocation(), cam.getDirection());
+                    environment.collideWith(ray, results);
 
-                /* !! ALL Visible items! */
-                int x = 0;
-                for (Spatial g : app.getEnvironmentScene().getChildren()) {
-                    if (g.getLastFrustumIntersection() == Camera.FrustumIntersect.Outside) {
-                    } else {
-                        x++;
+                    if (results.size() > 0) {
+                        CollisionResult closest = results.getClosestCollision();
+                        Spatial s = closest.getGeometry();
+                        // we cheat Model differently with simple Geometry
+                        // s.parent is Oto-ogremesh when s is Oto_geom-1 and that is what we need
+                        if (s.getName().equals("Oto-geom-1")) {
+                            s = s.getParent();
+                        }
+
+                        final Vector3f newPosition = closest.getContactPoint();
+                        float radius = ((BoundingBox) s.getWorldBound()).getYExtent();
+                        newPosition.setY(newPosition.getY() + radius * 2);
+
+                        Spatial s1 = inventory.getChild(0);
+                        // scale back
+                        s1.scale(.02f);
+                        s1.setLocalTranslation(newPosition);
+                        inventory.detachAllChildren();
+                        environment.attachChild(s1);
                     }
-                }
 
-//                System.out.println(x + "  ----- Collisions? " + results.size() + "-----");
-                for (int i = 0; i < results.size(); i++) {
-                    // For each hit, we know distance, impact point, name of geometry.
-                    float dist = results.getCollision(i).getDistance();
-                    Vector3f pt = results.getCollision(i).getContactPoint();
-                    String hit = results.getCollision(i).getGeometry().getName();
-//                    System.out.println("* Collision #" + i);
-//                    System.out.println("  You shot " + hit + " at " + pt + ", " + dist + " wu away.");
-                }
-                // 5. Use the results (we mark the hit object)
-                if (results.size() > 0) {
-                    // The closest collision point is what was truly hit:
-                    CollisionResult closest = results.getClosestCollision();
-                    // Let's interact - we mark the hit with a red dot.
-                    mark.setLocalTranslation(closest.getContactPoint());
-                    rootNode.attachChild(mark);
                 } else {
-                    // No hits? Then remove the red mark.
-                    rootNode.detachChild(mark);
+                    CollisionResults results = new CollisionResults();
+                    Ray ray = new Ray(cam.getLocation(), cam.getDirection());
+                    environment.collideWith(ray, results);
+
+                    if (results.size() > 0) {
+                        CollisionResult closest = results.getClosestCollision();
+                        Spatial s = closest.getGeometry();
+                        // we cheat Model differently with simple Geometry
+                        // s.parent is Oto-ogremesh when s is Oto_geom-1 and that is what we need
+                        if (s.getName().equals("Oto-geom-1")) {
+                            s = s.getParent();
+                        }
+
+                        environment.detachChild(s);
+                        inventory.attachChild(s);
+                        // make it bigger to see on the HUD
+                        s.scale(50f);
+                        // make it on the HUD center
+                        s.setLocalTranslation(app.getSettings().getWidth() / 2, app.getSettings().getHeight() / 2, 0);
+                    }
                 }
             }
         }
