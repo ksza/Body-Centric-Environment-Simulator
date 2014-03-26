@@ -12,7 +12,8 @@ import com.jme3.scene.shape.Box;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
-import dk.itu.bodysim.context.ContextData;
+import dk.itu.bodysim.context.EgocentricContextData;
+import dk.itu.bodysim.context.ObjectType;
 
 /**
  * A really simple scene resembling the structure of a room. It comprises of
@@ -31,10 +32,10 @@ public class SimpleEnvironment extends Node {
 
         this.assetManager = assetManager;
 
-        this.attachChild(makeCube("Table", -2f, 0f, 1f, 20000));
-        this.attachChild(makeCube("TV", 1f, -2f, 0f, 5500));
-        this.attachChild(makeCube("Chair", 0f, 1f, -2f, 7000));
-        this.attachChild(makeCube("Dude", 1f, 0f, -4f, 70000));
+        this.attachChild(makeCube("Table", -2f, 0f, 1f, createContextData(ObjectType.PHYSICAL, false)));
+        this.attachChild(makeCube("TV", 1f, -2f, 0f, createContextData(ObjectType.MEDIATOR, true)));
+        this.attachChild(makeCube("Chair", 0f, 1f, -2f, createContextData(ObjectType.PHYSICAL, true)));
+        this.attachChild(makeCube("Dude", 1f, 0f, -4f, createContextData(ObjectType.PHYSICAL, false)));
         this.attachChild(makeFloor());        
         this.attachChild(makeCharacter());
         
@@ -44,14 +45,22 @@ public class SimpleEnvironment extends Node {
         this.addLight(dl);
     }
 
-    private Geometry makeCube(String name, float x, float y, float z, int weight) {
+    private EgocentricContextData createContextData(final ObjectType type, final boolean canBeMoved) {
+        final EgocentricContextData data = new EgocentricContextData();
+        data.setType(type);
+        data.setCanBeMoved(canBeMoved);
+        
+        return data;
+    }
+    
+    private Geometry makeCube(String name, float x, float y, float z, EgocentricContextData data) {
         Box box = new Box(1, 1, 1);
         Geometry cube = new Geometry(name, box);
         cube.setLocalTranslation(x, y, z);
         Material mat1 = new Material(this.assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat1.setColor("Color", ColorRGBA.randomColor());
         cube.setMaterial(mat1);
-        cube.setUserData("context", new ContextData(weight));
+        cube.setUserData(EgocentricContextData.TAG, data);
         return cube;
     }
 

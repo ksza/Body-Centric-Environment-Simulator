@@ -1,5 +1,6 @@
 package dk.itu.bodysim;
 
+import dk.itu.bodysim.notifications.NotificationsStateManager;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.CollisionShape;
@@ -49,6 +50,7 @@ public abstract class EgocentricApp extends SimpleApplication {
         rootNode.attachChild(environmentScene);
         bulletAppState.getPhysicsSpace().add(landscape);
 
+        stateManager.attach(new NotificationsStateManager());
         stateManager.attach(new EgocentricContextManager());
         stateManager.attach(new FirstPersonAgentAppState(bulletAppState.getPhysicsSpace()));
     }

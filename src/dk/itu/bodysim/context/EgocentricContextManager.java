@@ -37,12 +37,8 @@ public class EgocentricContextManager extends AbstractAppState {
         this.physics = this.stateManager.getState(BulletAppState.class);
     }
 
-    private int index = 0;
-    
     @Override
     public void update(float tpf) {
         super.update(tpf);
-        
-        System.out.println("Update " + (++index));
     }       
 }

@@ -28,6 +28,8 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Sphere;
 import dk.itu.bodysim.EgocentricApp;
+import dk.itu.bodysim.notifications.NotificationsStateManager;
+import dk.itu.bodysim.context.EgocentricContextData;
 import java.util.List;
 import java.util.Set;
 
@@ -79,7 +81,7 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
 
         inventory = new Node("Inventory");
         this.app.getGuiNode().attachChild(inventory);
-        
+
         characterControl = new CharacterControl(new CapsuleCollisionShape(1.5f, 6f, 1), 0.05f);
 
         characterControl.setJumpSpeed(20);
@@ -259,18 +261,26 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                     if (results.size() > 0) {
                         CollisionResult closest = results.getClosestCollision();
                         Spatial s = closest.getGeometry();
-                        // we cheat Model differently with simple Geometry
-                        // s.parent is Oto-ogremesh when s is Oto_geom-1 and that is what we need
-                        if (s.getName().equals("Oto-geom-1")) {
-                            s = s.getParent();
-                        }
 
-                        environment.detachChild(s);
-                        inventory.attachChild(s);
-                        // make it bigger to see on the HUD
-                        s.scale(50f);
-                        // make it on the HUD center
-                        s.setLocalTranslation(app.getSettings().getWidth() / 2, app.getSettings().getHeight() / 2, 0);
+                        final EgocentricContextData data = s.getUserData(EgocentricContextData.TAG);
+                        if (data != null && data.canBeMoved()) {
+
+                            // we cheat Model differently with simple Geometry
+                            // s.parent is Oto-ogremesh when s is Oto_geom-1 and that is what we need
+                            if (s.getName().equals("Oto-geom-1")) {
+                                s = s.getParent();
+                            }
+
+                            environment.detachChild(s);
+                            inventory.attachChild(s);
+                            // make it bigger to see on the HUD
+                            s.scale(50f);
+                            // make it on the HUD center
+                            s.setLocalTranslation(app.getSettings().getWidth() / 2, app.getSettings().getHeight() / 2, 0);
+                        } else {
+
+                            stateManager.getState(NotificationsStateManager.class).addNotification("(Pick-up) " + s.getName() + ", can't be moved!");
+                        }
                     }
                 }
             }
