@@ -262,24 +262,27 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                         CollisionResult closest = results.getClosestCollision();
                         Spatial s = closest.getGeometry();
 
+                        // we cheat Model differently with simple Geometry
+                        // s.parent is Oto-ogremesh when s is Oto_geom-1 and that is what we need
+                        if (s.getName().equals("Oto-geom-1")) {
+                            s = s.getParent();
+                        }
+                        
                         final EgocentricContextData data = s.getUserData(EgocentricContextData.TAG);
-                        if (data != null && data.canBeMoved()) {
+                        /* take into consideration only objects having contextual data */
+                        if (data != null) {
 
-                            // we cheat Model differently with simple Geometry
-                            // s.parent is Oto-ogremesh when s is Oto_geom-1 and that is what we need
-                            if (s.getName().equals("Oto-geom-1")) {
-                                s = s.getParent();
+                            if (data.canBeMoved()) {
+
+                                environment.detachChild(s);
+                                inventory.attachChild(s);
+                                // make it bigger to see on the HUD
+                                s.scale(50f);
+                                // make it on the HUD center
+                                s.setLocalTranslation(app.getSettings().getWidth() / 2, app.getSettings().getHeight() / 2, 0);
+                            } else {
+                                stateManager.getState(NotificationsStateManager.class).addNotification("(Pick-up) " + s.getName() + ", can't be moved!");
                             }
-
-                            environment.detachChild(s);
-                            inventory.attachChild(s);
-                            // make it bigger to see on the HUD
-                            s.scale(50f);
-                            // make it on the HUD center
-                            s.setLocalTranslation(app.getSettings().getWidth() / 2, app.getSettings().getHeight() / 2, 0);
-                        } else {
-
-                            stateManager.getState(NotificationsStateManager.class).addNotification("(Pick-up) " + s.getName() + ", can't be moved!");
                         }
                     }
                 }
