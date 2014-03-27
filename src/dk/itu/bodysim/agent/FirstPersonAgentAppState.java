@@ -282,7 +282,7 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                         /* take into consideration only objects having contextual data */
                         if (data != null) {
 
-                            if (data.canBeMoved()) {
+                            if (data.isCanBeMoved()) {
 
                                 environment.detachChild(s);
                                 inventory.attachChild(s);

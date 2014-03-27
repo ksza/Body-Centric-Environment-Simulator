@@ -32,7 +32,7 @@ public class EgocentricContextData implements Savable {
         return type;
     }
 
-    public boolean canBeMoved() {
+    public boolean isCanBeMoved() {
         return canBeMoved;
     }
 
