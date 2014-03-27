@@ -1,6 +1,6 @@
 package dk.itu.bodysim.context;
 
-import dk.itu.bodysim.context.server.ContextServerApplication;
+import dk.itu.bodysim.context.server.view.ContextApiServer;
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AbstractAppState;
@@ -12,6 +12,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import dk.itu.bodysim.context.server.api.ContextViewServer;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -63,9 +64,12 @@ public class EgocentricContextManager extends AbstractAppState {
         // Add a new HTTP server listening on port 8182.
         serverComponent.getServers().add(Protocol.HTTP, 8182);
 
-        // Attach the sample application.
-        serverComponent.getDefaultHost().attach("/context",
-                new ContextServerApplication());
+        serverComponent.getDefaultHost().attach("/context/api",
+                new ContextApiServer());
+        
+        serverComponent.getDefaultHost().attach("/context/view",
+                new ContextViewServer());
+
         try {
             // Start the component.
             serverComponent.start();
