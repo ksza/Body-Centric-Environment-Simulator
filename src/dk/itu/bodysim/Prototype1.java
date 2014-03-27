@@ -22,6 +22,6 @@ public class Prototype1 extends EgocentricApp {
 
     @Override
     public Vector3f getInitialAgentPosition() {
-        return new Vector3f(0, 30, 30);
+        return new Vector3f(0, 10, 30);
     }
 }
