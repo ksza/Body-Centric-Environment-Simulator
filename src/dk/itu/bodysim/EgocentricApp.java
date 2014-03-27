@@ -23,6 +23,10 @@ public abstract class EgocentricApp extends SimpleApplication {
     private BulletAppState bulletAppState;
     private RigidBodyControl landscape;
 
+    public EgocentricApp() {
+//        showSettings = false;
+    }    
+    
     @Override
     public void simpleInitApp() {
         environmentScene = createEnvironmentScene();

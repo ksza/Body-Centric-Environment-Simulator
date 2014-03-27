@@ -18,21 +18,16 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
-import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.shape.Sphere;
 import dk.itu.bodysim.EgocentricApp;
 import dk.itu.bodysim.notifications.NotificationsStateManager;
 import dk.itu.bodysim.context.EgocentricContextData;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import dk.itu.bodysim.context.EgocentricContextManager;
 
 /**
  *
@@ -94,8 +89,6 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
 
         initKeys(app.getInputManager());
         initCrossHairs(); // a "+" in the middle of the screen to help aiming
-        initMark();       // a red sphere to mark the hit
-
     }
 
     /**
@@ -110,17 +103,6 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
         ch.setLocalTranslation( // center
                 app.getSettings().getWidth() / 2 - ch.getLineWidth() / 2, app.getSettings().getHeight() / 2 + ch.getLineHeight() / 2, 0);
         app.getGuiNode().attachChild(ch);
-    }
-
-    /**
-     * A red ball that marks the last spot that was "hit" by the "shot".
-     */
-    protected void initMark() {
-        Sphere sphere = new Sphere(30, 30, 0.2f);
-        mark = new Geometry("BOOM!", sphere);
-        Material mark_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mark_mat.setColor("Color", ColorRGBA.Red);
-        mark.setMaterial(mark_mat);
     }
 
     /**
@@ -198,45 +180,13 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
         cam.setLocation(characterControl.getPhysicsLocation());
     }
 
-    private void computePerceptionSpace(final Node node, final Set<Spatial> worldSpace) {
-
-        for (Spatial element : node.getChildren()) {
-
-            if (element.getCullHint() != Spatial.CullHint.Never) {
-
-                final EgocentricContextData data = element.getUserData(EgocentricContextData.TAG);
-                if (data != null && element.checkCulling(cam)) {
-                    worldSpace.add(element);
-                }
-
-                final List<Spatial> children = node.getChildren();
-                if (children != null && children.size() > 0) {
-
-                    for (final Spatial child : children) {
-
-
-                        if (Node.class.isAssignableFrom(child.getClass())) {
-                            computePerceptionSpace((Node) child, worldSpace);
-                        }
-                    }
-                }
-            }
-        }
-    }
     private ActionListener pickListener = new ActionListener() {
         public void onAction(String name, boolean keyPressed, float tpf) {
             if (name.equals("Pick") && !keyPressed) {
 
-                final Set<Spatial> worldSpace = new HashSet<Spatial>();
-                computePerceptionSpace(environment, worldSpace);
-                final StringBuilder sb = new StringBuilder();
-                for(final Spatial elem: worldSpace) {
-                   sb.append(elem).append("; ");
-                }
-                System.out.println("Perception Space: " + sb.toString());
+                stateManager.getState(EgocentricContextManager.class).determineSpaces(environment);
                 
                 if (!inventory.getChildren().isEmpty()) {
-
 
                     CollisionResults results = new CollisionResults();
                     Ray ray = new Ray(cam.getLocation(), cam.getDirection());

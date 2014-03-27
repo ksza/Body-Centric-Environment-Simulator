@@ -17,9 +17,6 @@ public class EgocentricContextData implements Savable {
     private ObjectType type = ObjectType.PHYSICAL;
     private boolean canBeMoved = false;
     
-    public EgocentricContextData() {
-    }
-
     public void setType(ObjectType type) {
         this.type = type;
     }
