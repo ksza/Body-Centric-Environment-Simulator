@@ -30,6 +30,7 @@ import com.jme3.scene.shape.Sphere;
 import dk.itu.bodysim.EgocentricApp;
 import dk.itu.bodysim.notifications.NotificationsStateManager;
 import dk.itu.bodysim.context.EgocentricContextData;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -197,25 +198,25 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
         cam.setLocation(characterControl.getPhysicsLocation());
     }
 
-    private void computeWorldSpace(final Node node, final Set<Spatial> worldSpace) {
+    private void computePerceptionSpace(final Node node, final Set<Spatial> worldSpace) {
 
         for (Spatial element : node.getChildren()) {
-//            if (g.getLastFrustumIntersection() == Camera.FrustumIntersect.Outside) {
-//            } else {
-//                
-//            }
 
             if (element.getCullHint() != Spatial.CullHint.Never) {
+
+                final EgocentricContextData data = element.getUserData(EgocentricContextData.TAG);
+                if (data != null && element.checkCulling(cam)) {
+                    worldSpace.add(element);
+                }
 
                 final List<Spatial> children = node.getChildren();
                 if (children != null && children.size() > 0) {
 
                     for (final Spatial child : children) {
 
-                        if (Geometry.class.isAssignableFrom(child.getClass())) {
-                            worldSpace.add(element);
-                        } else if (Node.class.isAssignableFrom(child.getClass())) {
-                            computeWorldSpace((Node) child, worldSpace);
+
+                        if (Node.class.isAssignableFrom(child.getClass())) {
+                            computePerceptionSpace((Node) child, worldSpace);
                         }
                     }
                 }
@@ -225,6 +226,15 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
     private ActionListener pickListener = new ActionListener() {
         public void onAction(String name, boolean keyPressed, float tpf) {
             if (name.equals("Pick") && !keyPressed) {
+
+                final Set<Spatial> worldSpace = new HashSet<Spatial>();
+                computePerceptionSpace(environment, worldSpace);
+                final StringBuilder sb = new StringBuilder();
+                for(final Spatial elem: worldSpace) {
+                   sb.append(elem).append("; ");
+                }
+                System.out.println("Perception Space: " + sb.toString());
+                
                 if (!inventory.getChildren().isEmpty()) {
 
 
@@ -267,7 +277,7 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                         if (s.getName().equals("Oto-geom-1")) {
                             s = s.getParent();
                         }
-                        
+
                         final EgocentricContextData data = s.getUserData(EgocentricContextData.TAG);
                         /* take into consideration only objects having contextual data */
                         if (data != null) {
