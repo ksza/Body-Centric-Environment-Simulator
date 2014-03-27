@@ -15,7 +15,9 @@ import com.jme3.scene.Spatial;
 import dk.itu.bodysim.context.server.api.ContextViewServer;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.restlet.Component;
@@ -37,6 +39,9 @@ public class EgocentricContextManager extends AbstractAppState {
     private Component serverComponent;
     private Camera cam;
 
+    /* SSM Spaces */
+    private Map<SSMSpaceType, Set<Spatial>> ssmSpaces = new ConcurrentHashMap<SSMSpaceType, Set<Spatial>>();
+    
     private static EgocentricContextManager instance;
     public static EgocentricContextManager getInstance() {
         return instance;
@@ -78,23 +83,12 @@ public class EgocentricContextManager extends AbstractAppState {
         }
     }
 
-    private Set<Spatial> perceptionSpace = new HashSet<Spatial>();
-    
     public void determineSpaces(final Node node) {
         
         final Set<Spatial> tempPerceptionSpace = new HashSet<Spatial>();
         computePerceptionSpace(node, tempPerceptionSpace);
-        setPerceptionSpace(tempPerceptionSpace);
+        ssmSpaces.put(SSMSpaceType.PERCEPTION_SPACE, tempPerceptionSpace);
     }
-    
-    private synchronized void setPerceptionSpace(final Set<Spatial> data) {
-        perceptionSpace.clear();
-        perceptionSpace.addAll(data);
-    }
-
-    public synchronized Set<Spatial> getPerceptionSpace() {
-        return perceptionSpace;
-    }        
     
     private void computePerceptionSpace(final Node node, final Set<Spatial> perceptionSpace) {
 
@@ -134,9 +128,9 @@ public class EgocentricContextManager extends AbstractAppState {
             }
         }
     }
-
-    @Override
-    public void update(float tpf) {
-        super.update(tpf);
+    
+    public synchronized Set<Spatial> getSet(final String setName) {
+        
+        return ssmSpaces.get(SSMSpaceType.fromString(setName));
     }
 }

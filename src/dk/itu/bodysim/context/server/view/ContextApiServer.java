@@ -12,11 +12,11 @@ public class ContextApiServer extends Application {
     @Override
     public synchronized Restlet createInboundRoot() {
         // Create a router Restlet that routes each call to a
-        // new instance of ApiAllSetsResource.
+        // new instance of ApiContextResource.
         Router router = new Router(getContext());
 
         // Defines only one route
-        router.attach("/allSets", ApiAllSetsResource.class);
+        router.attach("/set", ApiContextResource.class);
 
         return router;
     }

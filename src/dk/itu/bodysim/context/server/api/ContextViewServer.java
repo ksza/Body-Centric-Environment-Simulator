@@ -16,7 +16,7 @@ public class ContextViewServer extends Application {
         Router router = new Router(getContext());
 
         // Defines only one route
-        router.attach("/allSets", ViewAllSetsResource.class);
+        router.attach("/set", ViewContextResource.class);
 
         return router;
     }
