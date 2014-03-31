@@ -20,7 +20,7 @@ public class EgocentricContextData implements Savable {
     private boolean canBeMoved = false;
     private float perceptionDistance = Float.MAX_VALUE;
     private float recognitionDistance = perceptionDistance;
-    private float examinationDistance = 1; // gotta be really close
+    private float examinationDistance = 3; // gotta be really close
     private float weight;
 
     public String getId() {
