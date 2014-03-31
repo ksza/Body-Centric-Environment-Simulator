@@ -1,6 +1,7 @@
 package dk.itu.bodysim.context.server.api;
 
 import com.jme3.scene.Spatial;
+import dk.itu.bodysim.context.EgocentricContextData;
 import dk.itu.bodysim.context.EgocentricContextManager;
 import dk.itu.bodysim.context.ssm.SSMBundle;
 import dk.itu.bodysim.context.server.view.ApiContextResource;
@@ -42,7 +43,8 @@ public class ViewContextResource extends ServerResource {
 
             if (setValue != null) {
                 for (final Spatial elem : setValue) {
-                    sb.append(elem).append("; ");
+                    final EgocentricContextData data = elem.getUserData(EgocentricContextData.TAG);
+                    sb.append(elem.getName()).append("(").append(data.getId()).append(")").append("; ");
                 }
 
                 System.out.println(sb.toString());

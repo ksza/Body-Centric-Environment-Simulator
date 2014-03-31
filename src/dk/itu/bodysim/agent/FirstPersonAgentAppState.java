@@ -116,6 +116,9 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                 new MouseButtonTrigger(MouseInput.BUTTON_LEFT)); // left-button click
         inputManager.addListener(pickListener, "Pick");
 
+        inputManager.addMapping("ComputeSpaces", new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
+        inputManager.addListener(computeSpacesListener, "ComputeSpaces");
+        
         inputManager.addMapping("Left", new KeyTrigger(KeyInput.KEY_A));
         inputManager.addMapping("Right", new KeyTrigger(KeyInput.KEY_D));
         inputManager.addMapping("Up", new KeyTrigger(KeyInput.KEY_W));
@@ -166,24 +169,28 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
         agentWalkDirection.set(0, 0, 0);
         if (left) {
             agentWalkDirection.addLocal(camLeft);
-            stateManager.getState(EgocentricContextManager.class).determineSpaces(environment);
         }
         if (right) {
             agentWalkDirection.addLocal(camLeft.negate());
-            stateManager.getState(EgocentricContextManager.class).determineSpaces(environment);
         }
         if (up) {
             agentWalkDirection.addLocal(camDir);
-            stateManager.getState(EgocentricContextManager.class).determineSpaces(environment);
         }
         if (down) {
             agentWalkDirection.addLocal(camDir.negate());
-            stateManager.getState(EgocentricContextManager.class).determineSpaces(environment);
         }
         characterControl.setWalkDirection(agentWalkDirection);
         cam.setLocation(characterControl.getPhysicsLocation());
     }
-
+    
+    private ActionListener computeSpacesListener = new ActionListener() {
+        public void onAction(String name, boolean keyPressed, float tpf) {
+            if (name.equals("ComputeSpaces") && !keyPressed) {
+                stateManager.getState(EgocentricContextManager.class).determineSpaces(environment);
+            }
+        }
+    };
+    
     private ActionListener pickListener = new ActionListener() {
         public void onAction(String name, boolean keyPressed, float tpf) {
             if (name.equals("Pick") && !keyPressed) {
@@ -224,15 +231,19 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                         CollisionResult closest = results.getClosestCollision();
                         Spatial s = closest.getGeometry();
 
-                        // we cheat Model differently with simple Geometry
-                        // s.parent is Oto-ogremesh when s is Oto_geom-1 and that is what we need
-                        if (s.getName().equals("Oto-geom-1")) {
+//                        // we cheat Model differently with simple Geometry
+//                        // s.parent is Oto-ogremesh when s is Oto_geom-1 and that is what we need
+//                        if (s.getName().equals("Oto-geom-1")) {
+//                            s = s.getParent();
+//                        }
+
+                        while(! s.getUserDataKeys().contains(EgocentricContextData.TAG) && ! s.equals(environment)) {
                             s = s.getParent();
                         }
-
+                        
                         final EgocentricContextData data = s.getUserData(EgocentricContextData.TAG);
                         /* take into consideration only objects having contextual data */
-                        if (data != null) {
+                        if (data != null && ! s.equals(environment)) {
 
                             if (data.isCanBeMoved()) {
 
