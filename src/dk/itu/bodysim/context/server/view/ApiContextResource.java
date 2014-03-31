@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.jme3.scene.Spatial;
 import dk.itu.bodysim.context.EgocentricContextManager;
+import dk.itu.bodysim.context.SSMBundle;
 import java.io.IOException;
 import java.util.Set;
 import org.restlet.data.MediaType;
@@ -26,7 +27,7 @@ public class ApiContextResource extends ServerResource {
                 final JsonArray spaceArray = new JsonArray();
                 result.add(setName, spaceArray);
 
-                final Set<Spatial> spaceValue = manager.getSet(setName);
+                final Set<Spatial> spaceValue = SSMBundle.getInstance().getSet(setName);
                 if (spaceValue != null) {
                     for (final Spatial elem : spaceValue) {
                         spaceArray.add(new JsonPrimitive(elem.getName()));

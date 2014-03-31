@@ -13,11 +13,10 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import dk.itu.bodysim.context.server.api.ContextViewServer;
+import dk.itu.bodysim.context.visitors.WorldSpaceVisitor;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.restlet.Component;
@@ -39,9 +38,6 @@ public class EgocentricContextManager extends AbstractAppState {
     private Component serverComponent;
     private Camera cam;
 
-    /* SSM Spaces */
-    private Map<SSMSpaceType, Set<Spatial>> ssmSpaces = new ConcurrentHashMap<SSMSpaceType, Set<Spatial>>();
-    
     private static EgocentricContextManager instance;
     public static EgocentricContextManager getInstance() {
         return instance;
@@ -62,7 +58,9 @@ public class EgocentricContextManager extends AbstractAppState {
         this.viewPort = this.app.getViewPort();
         this.physics = this.stateManager.getState(BulletAppState.class);
 
-
+        /* compute world space */
+        rootNode.depthFirstTraversal(new WorldSpaceVisitor());
+        
         /* start up the rest server */
         serverComponent = new Component();
 
@@ -87,7 +85,7 @@ public class EgocentricContextManager extends AbstractAppState {
         
         final Set<Spatial> tempPerceptionSpace = new HashSet<Spatial>();
         computePerceptionSpace(node, tempPerceptionSpace);
-        ssmSpaces.put(SSMSpaceType.PERCEPTION_SPACE, tempPerceptionSpace);
+        SSMBundle.getInstance().putSet(SSMSpaceType.PERCEPTION_SPACE, tempPerceptionSpace);     
     }
     
     private void computePerceptionSpace(final Node node, final Set<Spatial> perceptionSpace) {
@@ -114,7 +112,7 @@ public class EgocentricContextManager extends AbstractAppState {
                 }
             }
         }
-    }               
+    }                   
     
     @Override
     public void cleanup() {
@@ -127,10 +125,5 @@ public class EgocentricContextManager extends AbstractAppState {
                 Logger.getLogger(EgocentricContextManager.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-    }
-    
-    public synchronized Set<Spatial> getSet(final String setName) {
-        
-        return ssmSpaces.get(SSMSpaceType.fromString(setName));
     }
 }
