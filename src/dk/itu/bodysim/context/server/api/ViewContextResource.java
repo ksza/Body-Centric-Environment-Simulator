@@ -43,8 +43,8 @@ public class ViewContextResource extends ServerResource {
 
             if (setValue != null) {
                 for (final Spatial elem : setValue) {
-                    final EgocentricContextData data = elem.getUserData(EgocentricContextData.TAG);
-                    sb.append(elem.getName()).append("(").append(data.getId()).append(")").append("; ");
+                    final EgocentricContextData userData = elem.getUserData(EgocentricContextData.TAG);
+                    sb.append(elem.getName()).append("(").append(userData.getId()).append(")").append("; ");
                 }
 
                 System.out.println(sb.toString());
