@@ -1,5 +1,7 @@
 package dk.itu.bodysim.context;
 
+import dk.itu.bodysim.context.ssm.SSMSpaceType;
+import dk.itu.bodysim.context.ssm.SSMBundle;
 import dk.itu.bodysim.context.server.view.ContextApiServer;
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
@@ -13,9 +15,11 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import dk.itu.bodysim.context.server.api.ContextViewServer;
-import dk.itu.bodysim.context.visitors.WorldSpaceVisitor;
-import java.util.HashSet;
-import java.util.List;
+import dk.itu.bodysim.context.ssm.ExaminableSetStrategy;
+import dk.itu.bodysim.context.ssm.PerceptionSpaceStrategy;
+import dk.itu.bodysim.context.ssm.RecognizableSetStrategy;
+import dk.itu.bodysim.context.ssm.SSMSpaceComputationStrategy;
+import dk.itu.bodysim.context.ssm.WorldSpaceVisitor;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -83,36 +87,24 @@ public class EgocentricContextManager extends AbstractAppState {
 
     public void determineSpaces(final Node node) {
         
-        final Set<Spatial> tempPerceptionSpace = new HashSet<Spatial>();
-        computePerceptionSpace(node, tempPerceptionSpace);
-        SSMBundle.getInstance().putSet(SSMSpaceType.PERCEPTION_SPACE, tempPerceptionSpace);     
+        final SSMBundle ssmBundle = SSMBundle.getInstance();
+        final Set<Spatial> worldSpace = ssmBundle.getSet(SSMSpaceType.WORLD_SPACE);
+        
+        ssmBundle.clearSet(SSMSpaceType.PERCEPTION_SPACE);
+        ssmBundle.clearSet(SSMSpaceType.RECOGNIZABLE_SET);
+        ssmBundle.clearSet(SSMSpaceType.EXAMINABLE_SET);
+//        ssmBundle.clearSet(SSMSpaceType.ACTION_SPACE);
+//        ssmBundle.clearSet(SSMSpaceType.SELECTED_SET);
+//        ssmBundle.clearSet(SSMSpaceType.MANIPULATED_SET);
+        
+        final SSMSpaceComputationStrategy perception = new PerceptionSpaceStrategy(cam);
+        final SSMSpaceComputationStrategy recognition = new RecognizableSetStrategy(cam);
+        final SSMSpaceComputationStrategy examination = new ExaminableSetStrategy(cam);
+        
+        ssmBundle.putSet(SSMSpaceType.PERCEPTION_SPACE, perception.determineSet(worldSpace));
+        ssmBundle.putSet(SSMSpaceType.RECOGNIZABLE_SET, recognition.determineSet(worldSpace));
+        ssmBundle.putSet(SSMSpaceType.EXAMINABLE_SET, examination.determineSet(worldSpace));
     }
-    
-    private void computePerceptionSpace(final Node node, final Set<Spatial> perceptionSpace) {
-
-        for (Spatial element : node.getChildren()) {
-
-            if (element.getCullHint() != Spatial.CullHint.Never) {
-
-                final EgocentricContextData data = element.getUserData(EgocentricContextData.TAG);
-                if (data != null && element.checkCulling(cam)) {
-                    perceptionSpace.add(element);
-                }
-
-                final List<Spatial> children = node.getChildren();
-                if (children != null && children.size() > 0) {
-
-                    for (final Spatial child : children) {
-
-
-                        if (Node.class.isAssignableFrom(child.getClass())) {
-                            computePerceptionSpace((Node) child, perceptionSpace);
-                        }
-                    }
-                }
-            }
-        }
-    }                   
     
     @Override
     public void cleanup() {

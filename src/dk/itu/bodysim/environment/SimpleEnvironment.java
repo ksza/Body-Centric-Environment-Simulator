@@ -32,10 +32,10 @@ public class SimpleEnvironment extends Node {
 
         this.assetManager = assetManager;
 
-        this.attachChild(makeCube("Table", -2f, 0f, 1f, createContextData(ObjectType.PHYSICAL, false)));
-        this.attachChild(makeCube("TV", 1f, -2f, 0f, createContextData(ObjectType.MEDIATOR, true)));
+        this.attachChild(makeCube("Table", -15f, 0f, 1f, createContextData(ObjectType.PHYSICAL, false)));
+        this.attachChild(makeCube("TV", 1f, -2f, 30f, createContextData(ObjectType.MEDIATOR, true)));
         this.attachChild(makeCube("Chair", 0f, 1f, -2f, createContextData(ObjectType.PHYSICAL, true)));
-        this.attachChild(makeCube("Dude", 1f, 0f, -4f, createContextData(ObjectType.PHYSICAL, false)));
+        this.attachChild(makeCube("Dude", 20f, 0f, -4f, createContextData(ObjectType.PHYSICAL, false)));
         this.attachChild(makeFloor());        
         this.attachChild(makeCharacter());
         
@@ -77,7 +77,7 @@ public class SimpleEnvironment extends Node {
         floorMaterial.setTexture("Tex2", floorTexture);
         floorMaterial.setTexture("Tex3", floorTexture);
         
-        final TerrainQuad terrain = new TerrainQuad("Floor", 65, 513, null);
+        final TerrainQuad terrain = new TerrainQuad("Floor", 129, 1025, null);
         terrain.setMaterial(floorMaterial);
         terrain.setLocalTranslation(0, -4, -5);
 

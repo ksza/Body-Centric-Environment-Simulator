@@ -166,15 +166,19 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
         agentWalkDirection.set(0, 0, 0);
         if (left) {
             agentWalkDirection.addLocal(camLeft);
+            stateManager.getState(EgocentricContextManager.class).determineSpaces(environment);
         }
         if (right) {
             agentWalkDirection.addLocal(camLeft.negate());
+            stateManager.getState(EgocentricContextManager.class).determineSpaces(environment);
         }
         if (up) {
             agentWalkDirection.addLocal(camDir);
+            stateManager.getState(EgocentricContextManager.class).determineSpaces(environment);
         }
         if (down) {
             agentWalkDirection.addLocal(camDir.negate());
+            stateManager.getState(EgocentricContextManager.class).determineSpaces(environment);
         }
         characterControl.setWalkDirection(agentWalkDirection);
         cam.setLocation(characterControl.getPhysicsLocation());
@@ -184,8 +188,6 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
         public void onAction(String name, boolean keyPressed, float tpf) {
             if (name.equals("Pick") && !keyPressed) {
 
-                stateManager.getState(EgocentricContextManager.class).determineSpaces(environment);
-                
                 if (!inventory.getChildren().isEmpty()) {
 
                     CollisionResults results = new CollisionResults();

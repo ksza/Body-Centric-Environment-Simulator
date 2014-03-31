@@ -1,4 +1,4 @@
-package dk.itu.bodysim.context;
+package dk.itu.bodysim.context.ssm;
 
 public enum SSMSpaceType {
     

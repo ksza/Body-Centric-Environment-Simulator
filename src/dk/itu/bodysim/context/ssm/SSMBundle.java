@@ -1,4 +1,4 @@
-package dk.itu.bodysim.context;
+package dk.itu.bodysim.context.ssm;
 
 import com.jme3.scene.Spatial;
 import java.util.HashSet;
@@ -42,6 +42,11 @@ public class SSMBundle {
     public synchronized Set<Spatial> getSet(final String setName) {
         
         return ssmSpaces.get(SSMSpaceType.fromString(setName));
+    }
+    
+    public synchronized Set<Spatial> getSet(final SSMSpaceType setType) {
+        
+        return ssmSpaces.get(setType);
     }
     
     public synchronized void putSet(final SSMSpaceType setType, final Set<Spatial> setValue) {

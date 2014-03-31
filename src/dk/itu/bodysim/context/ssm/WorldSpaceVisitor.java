@@ -1,10 +1,8 @@
-package dk.itu.bodysim.context.visitors;
+package dk.itu.bodysim.context.ssm;
 
 import com.jme3.scene.SceneGraphVisitor;
 import com.jme3.scene.Spatial;
 import dk.itu.bodysim.context.EgocentricContextData;
-import dk.itu.bodysim.context.SSMBundle;
-import dk.itu.bodysim.context.SSMSpaceType;
 
 /**
  * The world space consists of all entities in the current scene, carying

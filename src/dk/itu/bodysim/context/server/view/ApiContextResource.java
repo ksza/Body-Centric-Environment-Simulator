@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.jme3.scene.Spatial;
 import dk.itu.bodysim.context.EgocentricContextManager;
-import dk.itu.bodysim.context.SSMBundle;
+import dk.itu.bodysim.context.ssm.SSMBundle;
 import java.io.IOException;
 import java.util.Set;
 import org.restlet.data.MediaType;
