@@ -1,6 +1,5 @@
 package dk.itu.bodysim.context;
 
-import dk.itu.bodysim.context.ssm.SSMSpaceType;
 import dk.itu.bodysim.context.ssm.SSMBundle;
 import dk.itu.bodysim.context.server.view.ContextApiServer;
 import com.jme3.app.Application;
@@ -19,7 +18,9 @@ import dk.itu.bodysim.context.ssm.ExaminableSetStrategy;
 import dk.itu.bodysim.context.ssm.PerceptionSpaceStrategy;
 import dk.itu.bodysim.context.ssm.RecognizableSetStrategy;
 import dk.itu.bodysim.context.ssm.SSMSpaceComputationStrategy;
+import dk.itu.bodysim.context.ssm.SSMSpaceType;
 import dk.itu.bodysim.context.ssm.WorldSpaceVisitor;
+import dk.itu.bodysim.notifications.NotificationsStateManager;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,18 +42,18 @@ public class EgocentricContextManager extends AbstractAppState {
     private BulletAppState physics;
     private Component serverComponent;
     private Camera cam;
-
     private static EgocentricContextManager instance;
+
     public static EgocentricContextManager getInstance() {
         return instance;
     }
-    
+
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
         super.initialize(stateManager, app);
 
         instance = this;
-        
+
         this.app = (SimpleApplication) app;
         this.cam = this.app.getCamera();
         this.rootNode = this.app.getRootNode();
@@ -64,7 +65,7 @@ public class EgocentricContextManager extends AbstractAppState {
 
         /* compute world space */
         rootNode.depthFirstTraversal(new WorldSpaceVisitor());
-        
+
         /* start up the rest server */
         serverComponent = new Component();
 
@@ -73,7 +74,7 @@ public class EgocentricContextManager extends AbstractAppState {
 
         serverComponent.getDefaultHost().attach("/context/api",
                 new ContextApiServer());
-        
+
         serverComponent.getDefaultHost().attach("/context/view",
                 new ContextViewServer());
 
@@ -86,26 +87,32 @@ public class EgocentricContextManager extends AbstractAppState {
     }
 
     public void determineSpaces(final Node node) {
-        
+
         final SSMBundle ssmBundle = SSMBundle.getInstance();
         final Set<Spatial> worldSpace = ssmBundle.getSet(SSMSpaceType.WORLD_SPACE);
-        
-        ssmBundle.clearSet(SSMSpaceType.PERCEPTION_SPACE);
-        ssmBundle.clearSet(SSMSpaceType.RECOGNIZABLE_SET);
-        ssmBundle.clearSet(SSMSpaceType.EXAMINABLE_SET);
-//        ssmBundle.clearSet(SSMSpaceType.ACTION_SPACE);
-//        ssmBundle.clearSet(SSMSpaceType.SELECTED_SET);
-//        ssmBundle.clearSet(SSMSpaceType.MANIPULATED_SET);
-        
+
         final SSMSpaceComputationStrategy perception = new PerceptionSpaceStrategy(cam);
         final SSMSpaceComputationStrategy recognition = new RecognizableSetStrategy(cam);
         final SSMSpaceComputationStrategy examination = new ExaminableSetStrategy(cam);
-        
+
         ssmBundle.putSet(SSMSpaceType.PERCEPTION_SPACE, perception.determineSet(worldSpace));
         ssmBundle.putSet(SSMSpaceType.RECOGNIZABLE_SET, recognition.determineSet(worldSpace));
         ssmBundle.putSet(SSMSpaceType.EXAMINABLE_SET, examination.determineSet(worldSpace));
+
+        log("Perception", ssmBundle.getSet(SSMSpaceType.PERCEPTION_SPACE));
+        log("Recognition", ssmBundle.getSet(SSMSpaceType.RECOGNIZABLE_SET));
+        log("Examination", ssmBundle.getSet(SSMSpaceType.EXAMINABLE_SET));
     }
-    
+
+    public void log(final String setName, final Set<Spatial> result) {
+        final StringBuilder sb = new StringBuilder(setName).append(": ");
+        for (final Spatial elem : result) {
+            sb.append(elem.getName()).append("; ");
+        }
+
+        stateManager.getState(NotificationsStateManager.class).addNotification(sb.toString());
+    }
+
     @Override
     public void cleanup() {
         super.cleanup();

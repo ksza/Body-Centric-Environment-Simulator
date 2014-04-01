@@ -35,7 +35,7 @@ public class SimpleEnvironment extends Node {
         this.attachChild(makeCube("Table", -15f, 0f, 1f, createContextData(ObjectType.PHYSICAL, false)));
         this.attachChild(makeCube("TV", 1f, -2f, 30f, createContextData(ObjectType.MEDIATOR, true)));
         this.attachChild(makeCube("Chair", 0f, 1f, -2f, createContextData(ObjectType.PHYSICAL, true)));
-        this.attachChild(makeCube("Dude", 20f, 0f, -4f, createContextData(ObjectType.PHYSICAL, false)));
+        this.attachChild(makeCube("Sofa", 20f, 0f, -4f, createContextData(ObjectType.PHYSICAL, false)));
         this.attachChild(makeFloor());        
         this.attachChild(makeCharacter());
         
@@ -45,8 +45,10 @@ public class SimpleEnvironment extends Node {
         this.addLight(dl);
     }
 
+    private static int id = 0;
     private EgocentricContextData createContextData(final ObjectType type, final boolean canBeMoved) {
         final EgocentricContextData data = new EgocentricContextData();
+        data.setId("ID_" + (++id));
         data.setType(type);
         data.setCanBeMoved(canBeMoved);
         
@@ -90,6 +92,9 @@ public class SimpleEnvironment extends Node {
         golem.scale(0.5f);
         golem.setLocalTranslation(-1.0f, -1.5f, -0.6f);
 
+        golem.setUserData(EgocentricContextData.TAG, createContextData(ObjectType.PHYSICAL, false));
+        golem.setName("Golem");
+        
         // We must add a light to make the model visible
         DirectionalLight sun = new DirectionalLight();
         sun.setDirection(new Vector3f(-0.1f, -0.7f, -1.0f));
