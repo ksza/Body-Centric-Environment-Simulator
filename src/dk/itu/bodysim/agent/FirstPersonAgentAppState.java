@@ -27,6 +27,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import dk.itu.bodysim.EgocentricApp;
+import dk.itu.bodysim.Util;
 import dk.itu.bodysim.notifications.NotificationsStateManager;
 import dk.itu.bodysim.context.EgocentricContextData;
 import dk.itu.bodysim.context.EgocentricContextManager;
@@ -231,6 +232,7 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                         s1.setLocalTranslation(newPosition);
                         inventory.detachAllChildren();
                         environment.attachChild(s1);
+                        Util.highlightEntity(app, s1);
                     }
 
                 } else {
@@ -257,7 +259,9 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                         if (data != null && !s.equals(environment)) {
 
                             if (data.isCanBeMoved()) {
-
+                                
+                                Util.removeHightlight(app, s);
+                                
                                 environment.detachChild(s);
                                 inventory.attachChild(s);
                                 // make it bigger to see on the HUD

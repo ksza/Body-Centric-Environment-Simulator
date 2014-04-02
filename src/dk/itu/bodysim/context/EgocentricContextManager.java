@@ -70,7 +70,7 @@ public class EgocentricContextManager extends AbstractAppState {
         this.physics = this.stateManager.getState(BulletAppState.class);
 
         /* compute world space */
-        rootNode.depthFirstTraversal(new WorldSpaceVisitor());
+        rootNode.depthFirstTraversal(new WorldSpaceVisitor(this.app));
 
         /* start up the rest server */
         serverComponent = new Component();
