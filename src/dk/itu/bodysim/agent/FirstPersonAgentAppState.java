@@ -16,7 +16,9 @@ import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
@@ -116,9 +118,19 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                 new MouseButtonTrigger(MouseInput.BUTTON_LEFT)); // left-button click
         inputManager.addListener(pickListener, "Pick");
 
-        inputManager.addMapping("ComputeSpaces", new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
+        inputManager.addMapping("ComputeSpaces",
+                new MouseAxisTrigger(MouseInput.AXIS_X, true),
+                new MouseAxisTrigger(MouseInput.AXIS_X, false),
+                new MouseAxisTrigger(MouseInput.AXIS_Y, true),
+                new MouseAxisTrigger(MouseInput.AXIS_Y, false),
+                new MouseAxisTrigger(MouseInput.AXIS_WHEEL, false),
+                new MouseAxisTrigger(MouseInput.AXIS_WHEEL, true),
+                new KeyTrigger(KeyInput.KEY_A),
+                new KeyTrigger(KeyInput.KEY_D),
+                new KeyTrigger(KeyInput.KEY_W),
+                new KeyTrigger(KeyInput.KEY_S));
         inputManager.addListener(computeSpacesListener, "ComputeSpaces");
-        
+
         inputManager.addMapping("Left", new KeyTrigger(KeyInput.KEY_A));
         inputManager.addMapping("Right", new KeyTrigger(KeyInput.KEY_D));
         inputManager.addMapping("Up", new KeyTrigger(KeyInput.KEY_W));
@@ -182,15 +194,14 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
         characterControl.setWalkDirection(agentWalkDirection);
         cam.setLocation(characterControl.getPhysicsLocation());
     }
-    
-    private ActionListener computeSpacesListener = new ActionListener() {
-        public void onAction(String name, boolean keyPressed, float tpf) {
-            if (name.equals("ComputeSpaces") && !keyPressed) {
+    private AnalogListener computeSpacesListener = new AnalogListener() {
+
+        public void onAnalog(String name, float value, float tpf) {
+            if (name.equals("ComputeSpaces")) {
                 stateManager.getState(EgocentricContextManager.class).determineSpaces(environment);
             }
         }
     };
-    
     private ActionListener pickListener = new ActionListener() {
         public void onAction(String name, boolean keyPressed, float tpf) {
             if (name.equals("Pick") && !keyPressed) {
@@ -237,13 +248,13 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
 //                            s = s.getParent();
 //                        }
 
-                        while(! s.getUserDataKeys().contains(EgocentricContextData.TAG) && ! s.equals(environment)) {
+                        while (!s.getUserDataKeys().contains(EgocentricContextData.TAG) && !s.equals(environment)) {
                             s = s.getParent();
                         }
-                        
+
                         final EgocentricContextData data = s.getUserData(EgocentricContextData.TAG);
                         /* take into consideration only objects having contextual data */
-                        if (data != null && ! s.equals(environment)) {
+                        if (data != null && !s.equals(environment)) {
 
                             if (data.isCanBeMoved()) {
 

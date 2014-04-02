@@ -43,6 +43,12 @@ public class EgocentricContextManager extends AbstractAppState {
     private Component serverComponent;
     private Camera cam;
     private static EgocentricContextManager instance;
+    private boolean computing = false;
+    private SSMBundle ssmBundle;
+    private Set<Spatial> worldSpace;
+    private SSMSpaceComputationStrategy perception;
+    private SSMSpaceComputationStrategy recognition;
+    private SSMSpaceComputationStrategy examination;
 
     public static EgocentricContextManager getInstance() {
         return instance;
@@ -78,6 +84,12 @@ public class EgocentricContextManager extends AbstractAppState {
         serverComponent.getDefaultHost().attach("/context/view",
                 new ContextViewServer());
 
+        ssmBundle = SSMBundle.getInstance();
+        worldSpace = ssmBundle.getSet(SSMSpaceType.WORLD_SPACE);
+        perception = new PerceptionSpaceStrategy(cam);
+        recognition = new RecognizableSetStrategy(cam);
+        examination = new ExaminableSetStrategy(cam);
+
         try {
             // Start the component.
             serverComponent.start();
@@ -86,22 +98,24 @@ public class EgocentricContextManager extends AbstractAppState {
         }
     }
 
+    public synchronized boolean isComputing() {
+        return computing;
+    }
+
+    public synchronized void setComputing(boolean computing) {
+        this.computing = computing;
+    }
+
     public void determineSpaces(final Node node) {
-
-        final SSMBundle ssmBundle = SSMBundle.getInstance();
-        final Set<Spatial> worldSpace = ssmBundle.getSet(SSMSpaceType.WORLD_SPACE);
-
-        final SSMSpaceComputationStrategy perception = new PerceptionSpaceStrategy(cam);
-        final SSMSpaceComputationStrategy recognition = new RecognizableSetStrategy(cam);
-        final SSMSpaceComputationStrategy examination = new ExaminableSetStrategy(cam);
 
         ssmBundle.putSet(SSMSpaceType.PERCEPTION_SPACE, perception.determineSet(worldSpace));
         ssmBundle.putSet(SSMSpaceType.RECOGNIZABLE_SET, recognition.determineSet(worldSpace));
         ssmBundle.putSet(SSMSpaceType.EXAMINABLE_SET, examination.determineSet(worldSpace));
 
-        log("Perception", ssmBundle.getSet(SSMSpaceType.PERCEPTION_SPACE));
-        log("Recognition", ssmBundle.getSet(SSMSpaceType.RECOGNIZABLE_SET));
-        log("Examination", ssmBundle.getSet(SSMSpaceType.EXAMINABLE_SET));
+//            log("Perception", ssmBundle.getSet(SSMSpaceType.PERCEPTION_SPACE));
+//            log("Recognition", ssmBundle.getSet(SSMSpaceType.RECOGNIZABLE_SET));
+//            log("Examination", ssmBundle.getSet(SSMSpaceType.EXAMINABLE_SET));
+        setComputing(false);
     }
 
     public void log(final String setName, final Set<Spatial> result) {

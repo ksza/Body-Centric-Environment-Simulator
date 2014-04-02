@@ -39,29 +39,29 @@ public class SSMBundle {
     /* SSM Spaces */
     private Map<SSMSpaceType, Set<Spatial>> ssmSpaces = new ConcurrentHashMap<SSMSpaceType, Set<Spatial>>();
 
-    public synchronized Set<Spatial> getSet(final String setName) {
+    public Set<Spatial> getSet(final String setName) {
         
         return ssmSpaces.get(SSMSpaceType.fromString(setName));
     }
     
-    public synchronized Set<Spatial> getSet(final SSMSpaceType setType) {
+    public Set<Spatial> getSet(final SSMSpaceType setType) {
         
         return ssmSpaces.get(setType);
     }
     
-    public synchronized void putSet(final SSMSpaceType setType, final Set<Spatial> setValue) {
+    public void putSet(final SSMSpaceType setType, final Set<Spatial> setValue) {
         
         ssmSpaces.put(setType, setValue);
     }
     
-    public synchronized void updateSet(final SSMSpaceType setType, final Spatial element) {
+    public void updateSet(final SSMSpaceType setType, final Spatial element) {
         
         final Set<Spatial> setValue = ssmSpaces.get(setType);
         setValue.add(element);
         ssmSpaces.put(setType, setValue);
     }
     
-    public synchronized void clearSet(final SSMSpaceType setType) {
+    public void clearSet(final SSMSpaceType setType) {
         
         ssmSpaces.get(setType).clear();
     }
