@@ -23,7 +23,6 @@ import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import dk.itu.bodysim.EgocentricApp;
@@ -54,8 +53,9 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
     private AssetManager assetManager;
     private final PhysicsSpace physicsSpace;
     private Node environment;
-    private Geometry mark;
     private Node inventory;
+    private Vector3f oldPosition = null;
+    private Vector3f oldScale = null;
 
     public FirstPersonAgentAppState(PhysicsSpace physicsSpace) {
         this.physicsSpace = physicsSpace;
@@ -118,6 +118,10 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
         inputManager.addMapping("Pick",
                 new MouseButtonTrigger(MouseInput.BUTTON_LEFT)); // left-button click
         inputManager.addListener(pickListener, "Pick");
+
+        inputManager.addMapping("PutBack",
+                new MouseButtonTrigger(MouseInput.BUTTON_RIGHT)); // right-button click
+        inputManager.addListener(putBackListener, "PutBack");
 
         inputManager.addMapping("ComputeSpaces",
                 new MouseAxisTrigger(MouseInput.AXIS_X, true),
@@ -196,7 +200,6 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
         cam.setLocation(characterControl.getPhysicsLocation());
     }
     private AnalogListener computeSpacesListener = new AnalogListener() {
-
         public void onAnalog(String name, float value, float tpf) {
             if (name.equals("ComputeSpaces")) {
                 stateManager.getState(EgocentricContextManager.class).determineSpaces(environment);
@@ -216,23 +219,31 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                     if (results.size() > 0) {
                         CollisionResult closest = results.getClosestCollision();
                         Spatial s = closest.getGeometry();
-                        // we cheat Model differently with simple Geometry
-                        // s.parent is Oto-ogremesh when s is Oto_geom-1 and that is what we need
-                        if (s.getName().equals("Oto-geom-1")) {
+
+                        while (!s.getUserDataKeys().contains(EgocentricContextData.TAG) && !s.equals(environment)) {
                             s = s.getParent();
                         }
 
-                        final Vector3f newPosition = closest.getContactPoint();
-                        float radius = ((BoundingBox) s.getWorldBound()).getYExtent();
-                        newPosition.setY(newPosition.getY() + radius * 2);
+                        final EgocentricContextData data = s.getUserData(EgocentricContextData.TAG);
+                        /* take into consideration only objects having contextual data */
+                        if (data != null && !s.equals(environment)) {
 
-                        Spatial s1 = inventory.getChild(0);
-                        // scale back
-                        s1.scale(.02f);
-                        s1.setLocalTranslation(newPosition);
-                        inventory.detachAllChildren();
-                        environment.attachChild(s1);
-                        Util.highlightEntity(app, s1);
+                            final BoundingBox targetBounds = (BoundingBox) s.getWorldBound();
+                            final Vector3f newPosition = closest.getContactPoint();
+                            float radius = ((BoundingBox) s.getWorldBound()).getYExtent();
+                            newPosition.setY(targetBounds.getCenter().getY() + targetBounds.getYExtent() + radius * 2);
+                            newPosition.setZ(targetBounds.getCenter().getZ());
+
+                            Spatial s1 = inventory.getChild(0);
+                            // scale back
+                            s1.setLocalScale(oldScale);
+                            s1.setLocalTranslation(newPosition);
+                            inventory.detachAllChildren();
+                            environment.attachChild(s1);
+                            Util.highlightEntity(app, s1);
+                        } else {
+                            stateManager.getState(NotificationsStateManager.class).addNotification("(Drop-down) Possible only on egocentric entities!");
+                        }
                     }
 
                 } else {
@@ -244,12 +255,6 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                         CollisionResult closest = results.getClosestCollision();
                         Spatial s = closest.getGeometry();
 
-//                        // we cheat Model differently with simple Geometry
-//                        // s.parent is Oto-ogremesh when s is Oto_geom-1 and that is what we need
-//                        if (s.getName().equals("Oto-geom-1")) {
-//                            s = s.getParent();
-//                        }
-
                         while (!s.getUserDataKeys().contains(EgocentricContextData.TAG) && !s.equals(environment)) {
                             s = s.getParent();
                         }
@@ -259,9 +264,12 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                         if (data != null && !s.equals(environment)) {
 
                             if (data.isCanBeMoved()) {
-                                
+
                                 Util.removeHightlight(app, s);
-                                
+
+                                oldPosition = s.getWorldTranslation().clone();
+                                oldScale = s.getWorldScale().clone();
+                                s.getWorldScale();
                                 environment.detachChild(s);
                                 inventory.attachChild(s);
                                 // make it bigger to see on the HUD
@@ -273,6 +281,23 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                             }
                         }
                     }
+                }
+            }
+        }
+    };
+    private ActionListener putBackListener = new ActionListener() {
+        public void onAction(String name, boolean keyPressed, float tpf) {
+            if (name.equals("PutBack") && !keyPressed) {
+
+                if (!inventory.getChildren().isEmpty()) {
+
+                    Spatial s1 = inventory.getChild(0);
+                    // scale back
+                    s1.setLocalScale(oldScale);
+                    s1.setLocalTranslation(oldPosition);
+                    inventory.detachAllChildren();
+                    environment.attachChild(s1);
+                    Util.highlightEntity(app, s1);
                 }
             }
         }

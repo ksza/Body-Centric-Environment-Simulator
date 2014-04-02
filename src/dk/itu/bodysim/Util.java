@@ -1,7 +1,9 @@
 package dk.itu.bodysim;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.light.AmbientLight;
 import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.WireBox;
@@ -16,6 +18,10 @@ public class Util {
     public static void highlightEntity(final SimpleApplication app, final Spatial spatial) {
 
         final EgocentricContextData data = spatial.getUserData(EgocentricContextData.TAG);
+        
+                    final AmbientLight light = new AmbientLight();
+            light.setColor(ColorRGBA.Gray);
+            spatial.addLight(light);
         
         final WireBox box = new WireBox();
         box.setBound(spatial.getWorldBound());
