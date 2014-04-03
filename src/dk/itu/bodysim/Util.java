@@ -17,31 +17,35 @@ public class Util {
 
     public static void highlightEntity(final SimpleApplication app, final Spatial spatial) {
 
-        final EgocentricContextData data = spatial.getUserData(EgocentricContextData.TAG);
-        
-                    final AmbientLight light = new AmbientLight();
+        if(((EgocentricApp) app).shouldHighlightEntities()) {
+            final EgocentricContextData data = spatial.getUserData(EgocentricContextData.TAG);
+
+            final AmbientLight light = new AmbientLight();
             light.setColor(ColorRGBA.Gray);
             spatial.addLight(light);
-        
-        final WireBox box = new WireBox();
-        box.setBound(spatial.getWorldBound());
-        box.setLineWidth(5);
 
-        Geometry cube = new Geometry(data.getId() + "_highlight", box);
-        cube.setLocalTranslation(spatial.getWorldTranslation());
-        Material mat1 = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+            final WireBox box = new WireBox();
+            box.setBound(spatial.getWorldBound());
+            box.setLineWidth(5);
 
-        cube.setLocalScale(spatial.getWorldScale());
-        cube.setMaterial(mat1);
+            Geometry cube = new Geometry(data.getId() + "_highlight", box);
+            cube.setLocalTranslation(spatial.getWorldTranslation());
+            Material mat1 = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
 
-        app.getRootNode().attachChild(cube);
+            cube.setLocalScale(spatial.getWorldScale());
+            cube.setMaterial(mat1);
+
+            app.getRootNode().attachChild(cube);
+        }
     }
-    
+
     public static void removeHightlight(final SimpleApplication app, final Spatial spatial) {
-        
-        final EgocentricContextData data = spatial.getUserData(EgocentricContextData.TAG);
-        final Spatial highlight = app.getRootNode().getChild(data.getId() + "_highlight");
-        
-        highlight.removeFromParent();
+
+        if(((EgocentricApp) app).shouldHighlightEntities()) {
+            final EgocentricContextData data = spatial.getUserData(EgocentricContextData.TAG);
+            final Spatial highlight = app.getRootNode().getChild(data.getId() + "_highlight");
+
+            highlight.removeFromParent();
+        }
     }
 }

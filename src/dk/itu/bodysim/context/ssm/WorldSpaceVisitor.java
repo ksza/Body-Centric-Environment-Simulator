@@ -5,6 +5,7 @@ import com.jme3.light.AmbientLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.SceneGraphVisitor;
 import com.jme3.scene.Spatial;
+import dk.itu.bodysim.EgocentricApp;
 import dk.itu.bodysim.Util;
 import dk.itu.bodysim.context.EgocentricContextData;
 
@@ -17,22 +18,23 @@ import dk.itu.bodysim.context.EgocentricContextData;
 public class WorldSpaceVisitor implements SceneGraphVisitor {
 
     private final SSMBundle ssmBundle = SSMBundle.getInstance();
-    private final SimpleApplication app;
+    private final EgocentricApp app;
     
     public WorldSpaceVisitor(final SimpleApplication app) {
         ssmBundle.clearSet(SSMSpaceType.WORLD_SPACE);
-        this.app = app;
+        this.app = (EgocentricApp) app;
     }       
     
     public void visit(Spatial spatial) {
         final EgocentricContextData data = spatial.getUserData(EgocentricContextData.TAG);
         if (data != null) {
             
-            Util.highlightEntity(app, spatial);
-            final AmbientLight light = new AmbientLight();
-            light.setColor(ColorRGBA.Gray);
-            spatial.addLight(light);
-            
+            if(app.shouldHighlightEntities()) {
+                Util.highlightEntity(app, spatial);
+                final AmbientLight light = new AmbientLight();
+                light.setColor(ColorRGBA.Gray);
+                spatial.addLight(light);
+            }
             ssmBundle.updateSet(SSMSpaceType.WORLD_SPACE, spatial);
         }
     }

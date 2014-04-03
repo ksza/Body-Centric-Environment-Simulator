@@ -27,6 +27,11 @@ public class Prototype1 extends EgocentricApp {
 
     @Override
     public float getAgentHeight() {
-        return 7;
+        return 15;
+    }
+
+    @Override
+    public boolean shouldHighlightEntities() {
+        return false;
     }
 }

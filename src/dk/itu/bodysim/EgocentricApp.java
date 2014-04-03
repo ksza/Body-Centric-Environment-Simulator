@@ -75,4 +75,6 @@ public abstract class EgocentricApp extends SimpleApplication {
      * @return the eyesight height
      */
     public abstract float getAgentHeight();
+    
+    public abstract boolean shouldHighlightEntities();
 }
