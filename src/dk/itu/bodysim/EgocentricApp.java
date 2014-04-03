@@ -24,7 +24,7 @@ public abstract class EgocentricApp extends SimpleApplication {
     private RigidBodyControl landscape;
 
     public EgocentricApp() {
-//        showSettings = false;
+        showSettings = true;
     }    
     
     @Override
@@ -70,4 +70,9 @@ public abstract class EgocentricApp extends SimpleApplication {
     protected abstract Node createEnvironmentScene();
     
     public abstract Vector3f getInitialAgentPosition();
+    
+    /**    
+     * @return the eyesight height
+     */
+    public abstract float getAgentHeight();
 }

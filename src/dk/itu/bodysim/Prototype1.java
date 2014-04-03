@@ -24,4 +24,9 @@ public class Prototype1 extends EgocentricApp {
     public Vector3f getInitialAgentPosition() {
         return new Vector3f(0, 10, 30);
     }
+
+    @Override
+    public float getAgentHeight() {
+        return 7;
+    }
 }
