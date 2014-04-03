@@ -16,15 +16,22 @@ public abstract class AbstractProximitySSMSpaceComputationStrategy extends Abstr
         super(camera);
     }
 
+    private boolean isOnScreen(Spatial s) {
+        BoundingVolume bv = s.getWorldBound();
+        int planeState = camera.getPlaneState();
+        camera.setPlaneState(0);
+        Camera.FrustumIntersect result = camera.contains(bv);
+        camera.setPlaneState(planeState);
+        return result == Camera.FrustumIntersect.Inside || result == Camera.FrustumIntersect.Intersects;
+    }
+
     @Override
     public boolean isInSet(Spatial element) {
 
-        final BoundingVolume worldBound = element.getWorldBound();
-        final Camera.FrustumIntersect intersection = camera.contains(worldBound);
-        if(intersection == Camera.FrustumIntersect.Inside) {
-            
+        if (isOnScreen(element)) {
+
             final EgocentricContextData data = element.getUserData(EgocentricContextData.TAG);
-            
+
             final float distance = camera.getLocation().distance(element.getWorldTranslation());
             if (distance > 0 && distance <= getReferenceDistance(data)) {
 
