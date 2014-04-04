@@ -1,10 +1,10 @@
-package dk.itu.bodysim.context.server.api;
+package dk.itu.bodysim.context.server.view;
 
 import com.jme3.scene.Spatial;
 import dk.itu.bodysim.context.EgocentricContextData;
 import dk.itu.bodysim.context.EgocentricContextManager;
+import dk.itu.bodysim.context.server.api.ApiContextResource;
 import dk.itu.bodysim.context.ssm.SSMBundle;
-import dk.itu.bodysim.context.server.view.ApiContextResource;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

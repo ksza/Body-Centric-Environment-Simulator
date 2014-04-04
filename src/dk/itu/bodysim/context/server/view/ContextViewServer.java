@@ -1,4 +1,4 @@
-package dk.itu.bodysim.context.server.api;
+package dk.itu.bodysim.context.server.view;
 
 import org.restlet.Application;
 import org.restlet.Restlet;

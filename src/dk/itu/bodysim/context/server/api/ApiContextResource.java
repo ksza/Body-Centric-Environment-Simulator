@@ -1,4 +1,4 @@
-package dk.itu.bodysim.context.server.view;
+package dk.itu.bodysim.context.server.api;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
