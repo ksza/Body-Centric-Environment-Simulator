@@ -61,6 +61,13 @@ public class SSMBundle {
         ssmSpaces.put(setType, setValue);
     }
     
+    public void removeFromSet(final SSMSpaceType setType, final Spatial element) {
+        
+        final Set<Spatial> setValue = ssmSpaces.get(setType);
+        setValue.remove(element);
+        ssmSpaces.put(setType, setValue);
+    }
+    
     public void clearSet(final SSMSpaceType setType) {
         
         ssmSpaces.get(setType).clear();

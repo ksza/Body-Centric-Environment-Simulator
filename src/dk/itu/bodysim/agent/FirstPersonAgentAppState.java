@@ -16,7 +16,9 @@ import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
@@ -28,6 +30,9 @@ import dk.itu.bodysim.Util;
 import dk.itu.bodysim.notifications.NotificationsStateManager;
 import dk.itu.bodysim.context.EgocentricContextData;
 import dk.itu.bodysim.context.EgocentricContextManager;
+import dk.itu.bodysim.context.ssm.SSMBundle;
+import dk.itu.bodysim.context.ssm.SSMSpaceType;
+import java.util.Set;
 
 /**
  *
@@ -117,21 +122,21 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                 new MouseButtonTrigger(MouseInput.BUTTON_LEFT)); // left-button click
         inputManager.addListener(pickListener, "Pick");
 
-        inputManager.addMapping("ComputeSpaces",
+        inputManager.addMapping("PutBack",
                 new MouseButtonTrigger(MouseInput.BUTTON_RIGHT)); // right-button click
-//        inputManager.addListener(putBackListener, "PutBack");
-//
-//        inputManager.addMapping("ComputeSpaces",
-//                new MouseAxisTrigger(MouseInput.AXIS_X, true),
-//                new MouseAxisTrigger(MouseInput.AXIS_X, false),
-//                new MouseAxisTrigger(MouseInput.AXIS_Y, true),
-//                new MouseAxisTrigger(MouseInput.AXIS_Y, false),
-//                new MouseAxisTrigger(MouseInput.AXIS_WHEEL, false),
-//                new MouseAxisTrigger(MouseInput.AXIS_WHEEL, true),
-//                new KeyTrigger(KeyInput.KEY_A),
-//                new KeyTrigger(KeyInput.KEY_D),
-//                new KeyTrigger(KeyInput.KEY_W),
-//                new KeyTrigger(KeyInput.KEY_S));
+        inputManager.addListener(putBackListener, "PutBack");
+
+        inputManager.addMapping("ComputeSpaces",
+                new MouseAxisTrigger(MouseInput.AXIS_X, true),
+                new MouseAxisTrigger(MouseInput.AXIS_X, false),
+                new MouseAxisTrigger(MouseInput.AXIS_Y, true),
+                new MouseAxisTrigger(MouseInput.AXIS_Y, false),
+                new MouseAxisTrigger(MouseInput.AXIS_WHEEL, false),
+                new MouseAxisTrigger(MouseInput.AXIS_WHEEL, true),
+                new KeyTrigger(KeyInput.KEY_A),
+                new KeyTrigger(KeyInput.KEY_D),
+                new KeyTrigger(KeyInput.KEY_W),
+                new KeyTrigger(KeyInput.KEY_S));
         inputManager.addListener(computeSpacesListener, "ComputeSpaces");
 
         inputManager.addMapping("Left", new KeyTrigger(KeyInput.KEY_A));
@@ -197,20 +202,20 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
         characterControl.setWalkDirection(agentWalkDirection);
         cam.setLocation(characterControl.getPhysicsLocation());
     }
-    private ActionListener computeSpacesListener = new ActionListener() {
-        public void onAction(String name, boolean isPressed, float tpf) {
-            if (name.equals("ComputeSpaces") && !isPressed) {
-                stateManager.getState(EgocentricContextManager.class).determineSpaces(environment);
-            }
-        }
-    };
-//    private AnalogListener computeSpacesListener = new AnalogListener() {
-//        public void onAnalog(String name, float value, float tpf) {
-//            if (name.equals("ComputeSpaces")) {
+//    private ActionListener computeSpacesListener = new ActionListener() {
+//        public void onAction(String name, boolean isPressed, float tpf) {
+//            if (name.equals("ComputeSpaces") && !isPressed) {
 //                stateManager.getState(EgocentricContextManager.class).determineSpaces(environment);
 //            }
 //        }
 //    };
+    private AnalogListener computeSpacesListener = new AnalogListener() {
+        public void onAnalog(String name, float value, float tpf) {
+            if (name.equals("ComputeSpaces")) {
+                stateManager.getState(EgocentricContextManager.class).determineSpaces(environment);
+            }
+        }
+    };
     private ActionListener pickListener = new ActionListener() {
         public void onAction(String name, boolean keyPressed, float tpf) {
             if (name.equals("Pick") && !keyPressed) {
@@ -233,19 +238,28 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                         /* take into consideration only objects having contextual data */
                         if (data != null && !s.equals(environment)) {
 
-                            final BoundingBox targetBounds = (BoundingBox) s.getWorldBound();
-                            final Vector3f newPosition = closest.getContactPoint();
-                            float radius = ((BoundingBox) s.getWorldBound()).getYExtent();
-                            newPosition.setY(targetBounds.getCenter().getY() + targetBounds.getYExtent() + radius * 2);
-                            newPosition.setZ(targetBounds.getCenter().getZ());
+                            final Set<Spatial> actionSpace = SSMBundle.getInstance().getSet(SSMSpaceType.ACTION_SPACE);
 
-                            Spatial s1 = inventory.getChild(0);
-                            // scale back
-                            s1.setLocalScale(oldScale);
-                            s1.setLocalTranslation(newPosition);
-                            inventory.detachAllChildren();
-                            environment.attachChild(s1);
-                            Util.highlightEntity(app, s1);
+                            if (actionSpace.contains(s)) {
+
+                                final BoundingBox targetBounds = (BoundingBox) s.getWorldBound();
+                                final Vector3f newPosition = closest.getContactPoint();
+                                float radius = ((BoundingBox) s.getWorldBound()).getYExtent();
+                                newPosition.setY(targetBounds.getCenter().getY() + targetBounds.getYExtent() + radius * 2);
+                                newPosition.setZ(targetBounds.getCenter().getZ());
+
+                                Spatial s1 = inventory.getChild(0);
+                                // scale back
+                                s1.setLocalScale(oldScale);
+                                s1.setLocalTranslation(newPosition);
+                                inventory.detachAllChildren();
+                                environment.attachChild(s1);
+                                Util.highlightEntity(app, s1);
+
+                                stateManager.getState(EgocentricContextManager.class).droppedDown(s1);
+                            } else {
+                                stateManager.getState(NotificationsStateManager.class).addNotification("(Drop-down) onto " + s.getName() + ", you are too far!");
+                            }
                         } else {
                             stateManager.getState(NotificationsStateManager.class).addNotification("(Drop-down) Possible only on egocentric entities!");
                         }
@@ -265,8 +279,11 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                         }
 
                         final EgocentricContextData data = s.getUserData(EgocentricContextData.TAG);
+
+                        final Set<Spatial> actionSpace = SSMBundle.getInstance().getSet(SSMSpaceType.ACTION_SPACE);
+
                         /* take into consideration only objects having contextual data */
-                        if (data != null && !s.equals(environment)) {
+                        if (data != null && !s.equals(environment) && actionSpace.contains(s)) {
 
                             if (data.isCanBeMoved()) {
 
@@ -281,9 +298,13 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                                 s.scale(50f);
                                 // make it on the HUD center
                                 s.setLocalTranslation(app.getSettings().getWidth() / 2, app.getSettings().getHeight() / 2, 0);
+
+                                stateManager.getState(EgocentricContextManager.class).pickedUp(s);
                             } else {
                                 stateManager.getState(NotificationsStateManager.class).addNotification("(Pick-up) " + s.getName() + ", can't be moved!");
                             }
+                        } else {
+                            stateManager.getState(NotificationsStateManager.class).addNotification("(Pick-up) " + s.getName() + ", you are too far!");
                         }
                     }
                 }
@@ -303,6 +324,8 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                     inventory.detachAllChildren();
                     environment.attachChild(s1);
                     Util.highlightEntity(app, s1);
+
+                    stateManager.getState(EgocentricContextManager.class).droppedDown(s1);
                 }
             }
         }
