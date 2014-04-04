@@ -21,17 +21,20 @@ public class EgocentricContextData implements Savable {
     private static final String PERCEPTION_DISTANCE_SAVE_TAG = "PERCEPTION_DISTANCE";
     private static final String RECOGNITION_DISTANCE_SAVE_TAG = "RECOGNITION_DISTANCE";
     private static final String EXAMINATION_DISTANCE_SAVE_TAG = "EXAMINATION_DISTANCE";
+    private static final String LAST_MEASURED_DISTANCE_SAVE_TAG = "LAST_MEASURED_DISTANCE_SAVE_TAG";
     private static final String WEIGHT_SAVE_TAG = "WEIGHT";
     private String id = UUID.randomUUID().toString();
     private ObjectType type = ObjectType.PHYSICAL;
     private boolean canBeMoved = true;
+    
+    private float lastMeasuredDistance;
     
     /**
      * Distances expressed in World Units (WU)
      */
     private float perceptionDistance = Float.MAX_VALUE;
     private float recognitionDistance = perceptionDistance;
-    private float examinationDistance = 3; // gotta be really close
+    private float examinationDistance = 10; // gotta be really close
     private float weight;
 
     public String getId() {
@@ -90,6 +93,13 @@ public class EgocentricContextData implements Savable {
         this.weight = weight;
     }
 
+    public float getLastMeasuredDistance() {
+        return lastMeasuredDistance;
+    }
+    public void setLastMeasuredDistance(float lastMeasuredDistance) {
+        this.lastMeasuredDistance = lastMeasuredDistance;
+    }       
+
     public void write(JmeExporter ex) throws IOException {
         final OutputCapsule capsule = ex.getCapsule(this);
 
@@ -99,6 +109,7 @@ public class EgocentricContextData implements Savable {
         capsule.write(perceptionDistance, PERCEPTION_DISTANCE_SAVE_TAG, perceptionDistance);
         capsule.write(recognitionDistance, RECOGNITION_DISTANCE_SAVE_TAG, recognitionDistance);
         capsule.write(examinationDistance, EXAMINATION_DISTANCE_SAVE_TAG, examinationDistance);
+        capsule.write(lastMeasuredDistance, LAST_MEASURED_DISTANCE_SAVE_TAG, 0);
         capsule.write(weight, WEIGHT_SAVE_TAG, weight);
     }
 
@@ -110,7 +121,8 @@ public class EgocentricContextData implements Savable {
         canBeMoved = ic.readBoolean(CAN_BE_MOVED_SAVE_TAG, true);
         perceptionDistance = ic.readFloat(PERCEPTION_DISTANCE_SAVE_TAG, Float.MAX_VALUE);
         recognitionDistance = ic.readFloat(RECOGNITION_DISTANCE_SAVE_TAG, perceptionDistance);
-        examinationDistance = ic.readFloat(EXAMINATION_DISTANCE_SAVE_TAG, 3);
+        examinationDistance = ic.readFloat(EXAMINATION_DISTANCE_SAVE_TAG, 10);
+        lastMeasuredDistance = ic.readFloat(LAST_MEASURED_DISTANCE_SAVE_TAG, 0);
         weight = ic.readFloat(WEIGHT_SAVE_TAG, 0);
     }
 }

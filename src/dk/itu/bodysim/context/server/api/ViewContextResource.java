@@ -8,6 +8,7 @@ import dk.itu.bodysim.context.server.view.ApiContextResource;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,9 +33,9 @@ public class ViewContextResource extends ServerResource {
         }
     }
 
-    private String serilizeSet(final String setTitle) {
+    private String serilizeSet(final String setTitle, final Set<Spatial> collectedSpatials) {
 
-        final StringBuilder sb = new StringBuilder(setTitle).append(": ");
+        final StringBuilder sb = new StringBuilder("<tr>").append("<td>").append(setTitle).append("</td>");
 
         final EgocentricContextManager manager = EgocentricContextManager.getInstance();
         if (manager != null) {
@@ -43,26 +44,67 @@ public class ViewContextResource extends ServerResource {
 
             if (setValue != null) {
                 for (final Spatial elem : setValue) {
+                    collectedSpatials.add(elem);
                     final EgocentricContextData userData = elem.getUserData(EgocentricContextData.TAG);
-                    sb.append(elem.getName()).append("(").append(userData.getId()).append(")").append("; ");
+                    sb.append("<td>").append(userData.getId()).append("</td>");
                 }
-
-                System.out.println(sb.toString());
             }
         }
 
+        sb.append("</tr>");
+        
         return sb.toString();
     }
 
+    private String serializeEntityContext(final Spatial entity) {
+        
+        final StringBuilder sb = new StringBuilder();
+        
+        final EgocentricContextData userData = entity.getUserData(EgocentricContextData.TAG);
+        
+        sb.append("<tr>");
+        sb.append("<td>").append(userData.getId()).append("</td>");
+        sb.append("<td>").append(userData.getLastMeasuredDistance()).append("</td>");
+        sb.append("<td>").append(userData.getType()).append("</td>");
+        sb.append("<td>").append(userData.isCanBeMoved()).append("</td>");
+        sb.append("<td>").append(userData.getPerceptionDistance()).append("</td>");
+        sb.append("<td>").append(userData.getRecognitionDistance()).append("</td>");
+        sb.append("<td>").append(userData.getExaminationDistance()).append("</td>");
+        sb.append("</tr>");
+        
+        return sb.toString();
+    }
+    
     private String toHtml(final String... setNames) {
         String result = "_error_";
 
         final StringBuilder sb = new StringBuilder();
 
+        sb.append("<br>").append("<h3>SSM Spaces</h3>").append("<table>");
+        
+        final Set<Spatial> collectedSpatials = new HashSet<Spatial>();
         for (final String setName : setNames) {
-            sb.append(serilizeSet(setName)).append("<br>");
+            sb.append(serilizeSet(setName, collectedSpatials));
         }
-
+        
+        sb.append("</table>").append("<br><br><br>").append("<h3>Entity Context Data</h3>").append("<table>");
+           
+        sb.append("<tr>");
+        sb.append("<th>").append("</th>");
+        sb.append("<th>").append("Last distance from agent").append("</th>");
+        sb.append("<th>").append("Type").append("</th>");
+        sb.append("<th>").append("Can be moved").append("</th>");
+        sb.append("<th>").append("Perception Distance (WU)").append("</th>");
+        sb.append("<th>").append("Recognition Distance (WU)").append("</th>");
+        sb.append("<th>").append("Examination Distance (WU)").append("</th>");
+        sb.append("</tr>");
+        
+        for(final Spatial entity: collectedSpatials) {
+            sb.append(serializeEntityContext(entity));
+        }
+        
+        sb.append("</table>").append("<small>* WU = expressed in World Units</small>");
+        
         final String serializedValue = sb.toString();
         if (serializedValue != null && serializedValue.length() > 0) {
             result = data.replace("<<DATA>>", sb.toString());

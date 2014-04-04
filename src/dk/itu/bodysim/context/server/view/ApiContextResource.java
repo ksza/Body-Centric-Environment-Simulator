@@ -1,9 +1,11 @@
 package dk.itu.bodysim.context.server.view;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.jme3.scene.Spatial;
+import dk.itu.bodysim.context.EgocentricContextData;
 import dk.itu.bodysim.context.EgocentricContextManager;
 import dk.itu.bodysim.context.ssm.SSMBundle;
 import java.io.IOException;
@@ -29,8 +31,13 @@ public class ApiContextResource extends ServerResource {
 
                 final Set<Spatial> spaceValue = SSMBundle.getInstance().getSet(setName);
                 if (spaceValue != null) {
+
                     for (final Spatial elem : spaceValue) {
-                        spaceArray.add(new JsonPrimitive(elem.getName()));
+
+                        final EgocentricContextData data = elem.getUserData(EgocentricContextData.TAG);
+
+                        GsonBuilder builder = new GsonBuilder();
+                        spaceArray.add(builder.create().toJsonTree(data));
                     }
                 }
             }
