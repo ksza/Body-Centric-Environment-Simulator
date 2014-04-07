@@ -30,6 +30,7 @@ import dk.itu.bodysim.Util;
 import dk.itu.bodysim.notifications.NotificationsStateManager;
 import dk.itu.bodysim.context.EgocentricContextData;
 import dk.itu.bodysim.context.EgocentricContextManager;
+import dk.itu.bodysim.context.ObjectType;
 import dk.itu.bodysim.context.ssm.SSMBundle;
 import dk.itu.bodysim.context.ssm.SSMSpaceType;
 import java.util.Set;
@@ -118,9 +119,9 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
      */
     private void initKeys(final InputManager inputManager) {
 
-        inputManager.addMapping("Pick",
+        inputManager.addMapping("Interact",
                 new MouseButtonTrigger(MouseInput.BUTTON_LEFT)); // left-button click
-        inputManager.addListener(pickListener, "Pick");
+        inputManager.addListener(interactListener, "Interact");
 
         inputManager.addMapping("PutBack",
                 new MouseButtonTrigger(MouseInput.BUTTON_RIGHT)); // right-button click
@@ -216,9 +217,9 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
             }
         }
     };
-    private ActionListener pickListener = new ActionListener() {
+    private ActionListener interactListener = new ActionListener() {
         public void onAction(String name, boolean keyPressed, float tpf) {
-            if (name.equals("Pick") && !keyPressed) {
+            if (name.equals("Interact") && !keyPressed) {
 
                 if (!inventory.getChildren().isEmpty()) {
 
@@ -286,29 +287,13 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                         if (data != null && !s.equals(environment)) {
 
                             if (actionSpace.contains(s)) {
-
-                                if (data.isCanBeMoved()) {
-
-
-
-                                    Util.removeHightlight(app, s);
-
-                                    oldPosition = s.getWorldTranslation().clone();
-                                    oldScale = s.getWorldScale().clone();
-                                    s.getWorldScale();
-                                    environment.detachChild(s);
-                                    inventory.attachChild(s);
-                                    // make it bigger to see on the HUD
-                                    s.scale(50f);
-                                    // make it on the HUD center
-                                    s.setLocalTranslation(app.getSettings().getWidth() / 2, app.getSettings().getHeight() / 2, 0);
-
-                                    stateManager.getState(EgocentricContextManager.class).pickedUp(s);
-                                } else {
-                                    stateManager.getState(NotificationsStateManager.class).addNotification("(Pick-up) " + data.getId() + ", can't be moved!");
+                                if (data.getType() == ObjectType.PHYSICAL) {
+                                    pickObjectUp(s, data);
+                                } else if (data.getType() == ObjectType.MEDIATOR) {
+                                    interactWithMediator(s, data);
                                 }
                             } else {
-                                stateManager.getState(NotificationsStateManager.class).addNotification("(Pick-up) " + data.getId() + ", you are too far!");
+                                stateManager.getState(NotificationsStateManager.class).addNotification("(Interact) " + data.getId() + ", you are too far!");
                             }
                         }
                     }
@@ -335,4 +320,30 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
             }
         }
     };
+
+    private void pickObjectUp(final Spatial object, final EgocentricContextData data) {
+
+        if (data.isCanBeMoved()) {
+
+            Util.removeHightlight(app, object);
+
+            oldPosition = object.getWorldTranslation().clone();
+            oldScale = object.getWorldScale().clone();
+            object.getWorldScale();
+            environment.detachChild(object);
+            inventory.attachChild(object);
+            // make it bigger to see on the HUD
+            object.scale(50f);
+            // make it on the HUD center
+            object.setLocalTranslation(app.getSettings().getWidth() / 2, app.getSettings().getHeight() / 2, 0);
+
+            stateManager.getState(EgocentricContextManager.class).pickedUp(object);
+        } else {
+            stateManager.getState(NotificationsStateManager.class).addNotification("(Pick-up) " + data.getId() + ", can't be moved!");
+        }
+    }
+
+    private void interactWithMediator(final Spatial object, final EgocentricContextData data) {
+        stateManager.getState(NotificationsStateManager.class).addNotification("(Interaction) " + data.getId() + ", not yet implemented for mediators!");
+    }
 }
