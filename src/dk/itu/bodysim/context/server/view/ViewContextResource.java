@@ -1,17 +1,13 @@
 package dk.itu.bodysim.context.server.view;
 
 import com.jme3.scene.Spatial;
+import dk.itu.bodysim.EgocentricApp;
 import dk.itu.bodysim.context.EgocentricContextData;
 import dk.itu.bodysim.context.EgocentricContextManager;
-import dk.itu.bodysim.context.server.api.ApiContextResource;
 import dk.itu.bodysim.context.ssm.SSMBundle;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.restlet.data.MediaType;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
@@ -22,15 +18,7 @@ public class ViewContextResource extends ServerResource {
     private static String data;
 
     static {
-        try {
-            data = new String(Files.readAllBytes(new File("resources/all_sets.html").toPath()));
-        } catch (IOException ex) {
-            Logger.getLogger(ApiContextResource.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        final EgocentricContextManager manager = EgocentricContextManager.getInstance();
-        if (manager != null) {
-        }
+        data = EgocentricApp.getInstance().getViewPresentationTemplate();
     }
 
     private String serilizeSet(final String setTitle, final Set<Spatial> collectedSpatials) {

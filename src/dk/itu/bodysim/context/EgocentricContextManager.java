@@ -103,6 +103,10 @@ public class EgocentricContextManager extends AbstractAppState {
         }
     }
 
+    public AssetManager getAssetManager() {
+        return assetManager;
+    } 
+    
     public synchronized boolean isComputing() {
         return computing;
     }

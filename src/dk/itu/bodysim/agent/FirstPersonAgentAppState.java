@@ -258,7 +258,7 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
 
                                 stateManager.getState(EgocentricContextManager.class).droppedDown(s1);
                             } else {
-                                stateManager.getState(NotificationsStateManager.class).addNotification("(Drop-down) onto " + s.getName() + ", you are too far!");
+                                stateManager.getState(NotificationsStateManager.class).addNotification("(Drop-down) onto " + data.getId() + ", you are too far!");
                             }
                         } else {
                             stateManager.getState(NotificationsStateManager.class).addNotification("(Drop-down) Possible only on egocentric entities!");
@@ -283,28 +283,33 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                         final Set<Spatial> actionSpace = SSMBundle.getInstance().getSet(SSMSpaceType.ACTION_SPACE);
 
                         /* take into consideration only objects having contextual data */
-                        if (data != null && !s.equals(environment) && actionSpace.contains(s)) {
+                        if (data != null && !s.equals(environment)) {
 
-                            if (data.isCanBeMoved()) {
+                            if (actionSpace.contains(s)) {
 
-                                Util.removeHightlight(app, s);
+                                if (data.isCanBeMoved()) {
 
-                                oldPosition = s.getWorldTranslation().clone();
-                                oldScale = s.getWorldScale().clone();
-                                s.getWorldScale();
-                                environment.detachChild(s);
-                                inventory.attachChild(s);
-                                // make it bigger to see on the HUD
-                                s.scale(50f);
-                                // make it on the HUD center
-                                s.setLocalTranslation(app.getSettings().getWidth() / 2, app.getSettings().getHeight() / 2, 0);
 
-                                stateManager.getState(EgocentricContextManager.class).pickedUp(s);
+
+                                    Util.removeHightlight(app, s);
+
+                                    oldPosition = s.getWorldTranslation().clone();
+                                    oldScale = s.getWorldScale().clone();
+                                    s.getWorldScale();
+                                    environment.detachChild(s);
+                                    inventory.attachChild(s);
+                                    // make it bigger to see on the HUD
+                                    s.scale(50f);
+                                    // make it on the HUD center
+                                    s.setLocalTranslation(app.getSettings().getWidth() / 2, app.getSettings().getHeight() / 2, 0);
+
+                                    stateManager.getState(EgocentricContextManager.class).pickedUp(s);
+                                } else {
+                                    stateManager.getState(NotificationsStateManager.class).addNotification("(Pick-up) " + data.getId() + ", can't be moved!");
+                                }
                             } else {
-                                stateManager.getState(NotificationsStateManager.class).addNotification("(Pick-up) " + s.getName() + ", can't be moved!");
+                                stateManager.getState(NotificationsStateManager.class).addNotification("(Pick-up) " + data.getId() + ", you are too far!");
                             }
-                        } else {
-                            stateManager.getState(NotificationsStateManager.class).addNotification("(Pick-up) " + s.getName() + ", you are too far!");
                         }
                     }
                 }

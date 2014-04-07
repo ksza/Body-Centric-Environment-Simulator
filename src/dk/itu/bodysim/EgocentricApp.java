@@ -23,6 +23,14 @@ public abstract class EgocentricApp extends SimpleApplication {
     private BulletAppState bulletAppState;
     private RigidBodyControl landscape;
 
+    private String viewPresentationTemplate;
+    
+    private static EgocentricApp instance;
+
+    public static EgocentricApp getInstance() {
+        return instance;
+    }
+    
     public EgocentricApp() {
         showSettings = true;
     }    
@@ -30,6 +38,11 @@ public abstract class EgocentricApp extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         environmentScene = createEnvironmentScene();
+        
+        instance = this;
+        
+        assetManager.registerLoader(HtmlLoader.class, HtmlLoader.class.getName(), "html");
+        viewPresentationTemplate = (String) assetManager.loadAsset("Html/all_sets.html");
         
         /**
          * Set up Physics
@@ -65,6 +78,10 @@ public abstract class EgocentricApp extends SimpleApplication {
     
     public Node getEnvironmentScene() {
         return environmentScene;
+    }
+
+    public String getViewPresentationTemplate() {
+        return viewPresentationTemplate;
     }
     
     protected abstract Node createEnvironmentScene();

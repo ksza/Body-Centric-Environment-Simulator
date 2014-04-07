@@ -7,14 +7,12 @@ import com.jme3.scene.Spatial;
 import dk.itu.bodysim.context.EgocentricContextData;
 
 /**
- * Entity is considered to be in the ACTION_SET if it is within reach
- * and the agent is looking directly at it!
- * 
+ * Entity is considered to be in the ACTION_SET if it is within reach and the
+ * agent is looking directly at it!
+ *
  * @author kszanto
  */
 public class ActionSpaceStrategy extends AbstractSSMSpaceComputationStrategy {
-
-    private static final float ACTION_SPACE_DISTANCE = 7;
 
     public ActionSpaceStrategy(Camera camera) {
         super(camera);
@@ -30,9 +28,8 @@ public class ActionSpaceStrategy extends AbstractSSMSpaceComputationStrategy {
         if (results.size() > 0) {
 
             final EgocentricContextData data = element.getUserData(EgocentricContextData.TAG);
-            if (data.getLastMeasuredDistance() <= ACTION_SPACE_DISTANCE) {
-                return true;
-            }
+
+            return data.getLastMeasuredDistance() <= data.getActionDistance();
         }
 
         return false;
