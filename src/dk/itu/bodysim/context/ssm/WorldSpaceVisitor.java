@@ -6,7 +6,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.scene.SceneGraphVisitor;
 import com.jme3.scene.Spatial;
 import dk.itu.bodysim.EgocentricApp;
-import dk.itu.bodysim.Util;
+import dk.itu.bodysim.util.Util;
 import dk.itu.bodysim.context.EgocentricContextData;
 
 /**

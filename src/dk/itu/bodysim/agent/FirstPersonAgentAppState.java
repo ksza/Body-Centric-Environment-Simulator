@@ -26,7 +26,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import dk.itu.bodysim.EgocentricApp;
-import dk.itu.bodysim.Util;
+import dk.itu.bodysim.util.Util;
 import dk.itu.bodysim.notifications.NotificationsStateManager;
 import dk.itu.bodysim.context.EgocentricContextData;
 import dk.itu.bodysim.context.EgocentricContextManager;

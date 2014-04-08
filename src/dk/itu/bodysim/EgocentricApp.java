@@ -1,5 +1,6 @@
 package dk.itu.bodysim;
 
+import dk.itu.bodysim.util.HtmlLoader;
 import dk.itu.bodysim.notifications.NotificationsStateManager;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
@@ -12,6 +13,7 @@ import com.jme3.scene.Node;
 import com.jme3.system.AppSettings;
 import dk.itu.bodysim.agent.FirstPersonAgentAppState;
 import dk.itu.bodysim.context.EgocentricContextManager;
+import dk.itu.bodysim.util.DictonaryLoader;
 
 /**
  *
@@ -41,7 +43,7 @@ public abstract class EgocentricApp extends SimpleApplication {
         
         instance = this;
         
-        assetManager.registerLoader(HtmlLoader.class, HtmlLoader.class.getName(), "html");
+        assetManager.registerLoader(HtmlLoader.class, HtmlLoader.class.getName(), "html");        
         viewPresentationTemplate = (String) assetManager.loadAsset("Html/all_sets.html");
         
         /**
