@@ -18,6 +18,7 @@ import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import dk.itu.bodysim.context.EgocentricContextData;
+import dk.itu.bodysim.context.InteractionType;
 import dk.itu.bodysim.context.ObjectType;
 
 /**
@@ -45,10 +46,17 @@ public class SimpleEnvironment extends Node {
 //        this.attachChild(makeCharacter());
         final Geometry table1 = makeTable(false, "Table1", 0, 0, -30, ColorRGBA.Blue, createContextData("Table1", ObjectType.PHYSICAL, 30, 500, 500, 200));
         this.attachChild(table1);
-        this.attachChild(makeCylinder("Pen", -1, 2.1f, -30.1f, ColorRGBA.Red, createContextData("Pen", ObjectType.PHYSICAL, 0.05f, 200, 80, 50)));
-        this.attachChild(makeCharacter(2f, 3f, -30.5f, createContextData("Statue", ObjectType.PHYSICAL, 1, 350, 150, 70)));
+        
+        final EgocentricContextData penData = createContextData("Pen", ObjectType.PHYSICAL, 0.05f, 200, 80, 50);
+        penData.setSurface(false);        
+        this.attachChild(makeCylinder("Pen", -1, 2.1f, -30.1f, ColorRGBA.Red, penData));
+        
+        final EgocentricContextData statueData = createContextData("Statue", ObjectType.PHYSICAL, 1, 350, 150, 70);
+        statueData.setSurface(false);  
+        statueData.setInteractionType(InteractionType.CUSTOM);
+        this.attachChild(makeCharacter(2f, 3f, -30.5f, statueData));
+        
         this.attachChild(makeFloor());
-
         final Geometry table2 = makeTable(true, "Table2", 50, 0, 10, ColorRGBA.Blue, createContextData("Table2", ObjectType.PHYSICAL, 30, 500, 500, 200));
         this.attachChild(table2);
         

@@ -30,6 +30,7 @@ import dk.itu.bodysim.util.Util;
 import dk.itu.bodysim.notifications.NotificationsStateManager;
 import dk.itu.bodysim.context.EgocentricContextData;
 import dk.itu.bodysim.context.EgocentricContextManager;
+import dk.itu.bodysim.context.InteractionType;
 import dk.itu.bodysim.context.ObjectType;
 import dk.itu.bodysim.context.ssm.SSMBundle;
 import dk.itu.bodysim.context.ssm.SSMSpaceType;
@@ -237,6 +238,9 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                             s = s.getParent();
                         }
 
+                        final Spatial s1 = inventory.getChild(0);
+                        final EgocentricContextData s1Data = s1.getUserData(EgocentricContextData.TAG);
+                        
                         final EgocentricContextData data = s.getUserData(EgocentricContextData.TAG);
                         /* take into consideration only objects having contextual data */
                         if (data != null && !s.equals(environment)) {
@@ -245,26 +249,29 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
 
                             if (actionSpace.contains(s)) {
 
-                                final BoundingBox targetBounds = (BoundingBox) s.getWorldBound();
-                                final Vector3f newPosition = closest.getContactPoint();
-                                float radius = ((BoundingBox) s.getWorldBound()).getYExtent();
-                                newPosition.setY(targetBounds.getCenter().getY() + targetBounds.getYExtent() + radius * 2);
-                                newPosition.setZ(targetBounds.getCenter().getZ());
+                                if(data.isSurface()) {
+                                    final BoundingBox targetBounds = (BoundingBox) s.getWorldBound();
+                                    final Vector3f newPosition = closest.getContactPoint();
+                                    float radius = ((BoundingBox) s.getWorldBound()).getYExtent();
+                                    newPosition.setY(targetBounds.getCenter().getY() + targetBounds.getYExtent() + radius * 2);
+                                    newPosition.setZ(targetBounds.getCenter().getZ());
 
-                                Spatial s1 = inventory.getChild(0);
-                                // scale back
-                                s1.setLocalScale(oldScale);
-                                s1.setLocalTranslation(newPosition);
-                                inventory.detachAllChildren();
-                                environment.attachChild(s1);
-                                Util.highlightEntity(app, s1);
+                                    // scale back
+                                    s1.setLocalScale(oldScale);
+                                    s1.setLocalTranslation(newPosition);
+                                    inventory.detachAllChildren();
+                                    environment.attachChild(s1);
+                                    Util.highlightEntity(app, s1);
 
-                                stateManager.getState(EgocentricContextManager.class).droppedDown(s1);
+                                    stateManager.getState(EgocentricContextManager.class).droppedDown(s1);
+                                } else {
+                                    stateManager.getState(NotificationsStateManager.class).addNotification("(Interact using " + s1Data.getId() + ") with " + data.getId() + ", not implemented!");
+                                }
                             } else {
-                                stateManager.getState(NotificationsStateManager.class).addNotification("(Drop-down) onto " + data.getId() + ", you are too far!");
+                                stateManager.getState(NotificationsStateManager.class).addNotification("(Interact using " + s1Data.getId() + ") with " + data.getId() + ", you are too far!");
                             }
                         } else {
-                            stateManager.getState(NotificationsStateManager.class).addNotification("(Drop-down) Possible only on egocentric entities!");
+                            stateManager.getState(NotificationsStateManager.class).addNotification("(Interact using " + s1Data.getId() + ") Possible only with egocentric entities!");
                         }
                     }
 
@@ -289,10 +296,15 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                         if (data != null && !s.equals(environment)) {
 
                             if (actionSpace.contains(s)) {
-                                if (data.getType() == ObjectType.PHYSICAL) {
-                                    pickObjectUp(s, data);
-                                } else if (data.getType() == ObjectType.MEDIATOR) {
-                                    interactWithMediator(s, data);
+                                
+                                if(data.getInteractionType() == InteractionType.PICK_UP) {
+                                    if (data.getType() == ObjectType.PHYSICAL) {
+                                        pickObjectUp(s, data);
+                                    } else if (data.getType() == ObjectType.MEDIATOR) {
+                                        interactWithMediator(s, data);
+                                    }
+                                } else {
+                                    stateManager.getState(NotificationsStateManager.class).addNotification("(Interact) " + data.getId() + ", support for custom interactions not yet implemented!");
                                 }
                             } else {
                                 stateManager.getState(NotificationsStateManager.class).addNotification("(Interact) " + data.getId() + ", you are too far!");

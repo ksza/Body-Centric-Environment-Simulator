@@ -24,13 +24,18 @@ public class EgocentricContextData implements Savable {
     private static final String ACTION_DISTANCE_SAVE_TAG = "ACTION_DISTANCE";
     private static final String LAST_MEASURED_DISTANCE_SAVE_TAG = "LAST_MEASURED_DISTANCE_SAVE_TAG";
     private static final String WEIGHT_SAVE_TAG = "WEIGHT";
+    private static final String SURFACE_TAG = "SURFACE";
     
     private String id = UUID.randomUUID().toString();
     private ObjectType type = ObjectType.PHYSICAL;
     /**
      * Distances expressed in World Units (WU)
      */
-    private InteractionType interactionType = InteractionType.PICK_UP_PUT_DOWN;
+    private InteractionType interactionType = InteractionType.PICK_UP;
+    /**
+     * If you can place other objects on top of this.
+     */
+    private boolean surface = true;
     
     private float perceptionDistance = Float.MAX_VALUE;
     private float recognitionDistance = perceptionDistance;
@@ -107,6 +112,14 @@ public class EgocentricContextData implements Savable {
         this.weight = weight;
     }
 
+    public void setSurface(boolean surface) {
+        this.surface = surface;
+    }
+
+    public boolean isSurface() {
+        return surface;
+    }
+    
     public float getLastMeasuredDistance() {
         return lastMeasuredDistance;
     }
@@ -126,6 +139,7 @@ public class EgocentricContextData implements Savable {
         capsule.write(examinationDistance, EXAMINATION_DISTANCE_SAVE_TAG, examinationDistance);
         capsule.write(actionDistance, ACTION_DISTANCE_SAVE_TAG, actionDistance);
         capsule.write(lastMeasuredDistance, LAST_MEASURED_DISTANCE_SAVE_TAG, 0);
+        capsule.write(surface, SURFACE_TAG, surface);
         capsule.write(weight, WEIGHT_SAVE_TAG, weight);
     }
 
@@ -140,6 +154,7 @@ public class EgocentricContextData implements Savable {
         examinationDistance = ic.readFloat(EXAMINATION_DISTANCE_SAVE_TAG, 10);
         actionDistance = ic.readFloat(ACTION_DISTANCE_SAVE_TAG, 13);
         lastMeasuredDistance = ic.readFloat(LAST_MEASURED_DISTANCE_SAVE_TAG, 0);
+        surface = ic.readBoolean(SURFACE_TAG, true);
         weight = ic.readFloat(WEIGHT_SAVE_TAG, 0);
     }
 }

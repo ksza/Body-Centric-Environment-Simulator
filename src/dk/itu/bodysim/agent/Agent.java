@@ -40,7 +40,7 @@ public class Agent {
      */
     public boolean canMove(final EgocentricContextData object) {
 
-        if(object != null && object.getInteractionType() == InteractionType.PICK_UP_PUT_DOWN) {
+        if(object != null && object.getInteractionType() == InteractionType.PICK_UP) {
             
             return object.getWeight() <= agentMaxCarryWeight;
         }

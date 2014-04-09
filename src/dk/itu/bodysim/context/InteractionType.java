@@ -7,9 +7,9 @@ package dk.itu.bodysim.context;
 public enum InteractionType {
 
     /**
-     * Provides out of the box funtioanlity to pick up/put down objects
+     * Provides out of the box funtioanlity to pick up objects
      */
-    PICK_UP_PUT_DOWN,
+    PICK_UP,
     /**
      * Allows to provide a custom implementation
      */
