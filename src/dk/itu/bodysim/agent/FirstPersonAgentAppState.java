@@ -252,8 +252,9 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                                 if(data.isSurface()) {
                                     final BoundingBox targetBounds = (BoundingBox) s.getWorldBound();
                                     final Vector3f newPosition = closest.getContactPoint();
-                                    float radius = ((BoundingBox) s.getWorldBound()).getYExtent();
-                                    newPosition.setY(targetBounds.getCenter().getY() + targetBounds.getYExtent() + radius * 2);
+                                    float radius = ((BoundingBox) s1.getWorldBound()).getCenter().getY();
+//                                    newPosition.setY(targetBounds.getCenter().getY() + targetBounds.getYExtent() + radius * 2);
+                                    newPosition.setY(targetBounds.getYExtent());
                                     newPosition.setZ(targetBounds.getCenter().getZ());
 
                                     // scale back
@@ -353,7 +354,7 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
 
             stateManager.getState(EgocentricContextManager.class).pickedUp(object);
         } else {
-            stateManager.getState(NotificationsStateManager.class).addNotification("(Pick-up) " + data.getId() + ", can't be moved!");
+            stateManager.getState(NotificationsStateManager.class).addNotification("(Pick-up) " + data.getId() + ", too heavy for you! Can't be picked up!");
         }
     }
 
