@@ -2,6 +2,7 @@ package dk.itu.bodysim;
 
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
+import dk.itu.bodysim.agent.Agent;
 import dk.itu.bodysim.environment.SimpleEnvironment;
 
 /**
@@ -21,17 +22,7 @@ public class Prototype1 extends EgocentricApp {
     }      
 
     @Override
-    public Vector3f getInitialAgentPosition() {
-        return new Vector3f(0, 10, 30);
-    }
-
-    @Override
-    public float getAgentHeight() {
-        return 15;
-    }
-
-    @Override
-    public boolean shouldHighlightEntities() {
-        return false;
+    protected Agent getAgentConfiguration() {
+       return new Agent(new Vector3f(0, 10, 30), 15, 15);
     }
 }

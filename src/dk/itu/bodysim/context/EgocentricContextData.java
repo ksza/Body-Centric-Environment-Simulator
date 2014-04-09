@@ -17,20 +17,21 @@ public class EgocentricContextData implements Savable {
     public static final String TAG = "EGOCENTRIC_CONTEXT_DATA";
     private static final String ID_SAVE_TAG = "ID";
     private static final String OBJECT_TYPE_SAVE_TAG = "OBJECT_TYPE";
-    private static final String CAN_BE_MOVED_SAVE_TAG = "CAN_BE_MOVED";
+    private static final String INTERACTION_TYPE_SAVE_TAG = "INTERACTION_TYPE";
     private static final String PERCEPTION_DISTANCE_SAVE_TAG = "PERCEPTION_DISTANCE";
     private static final String RECOGNITION_DISTANCE_SAVE_TAG = "RECOGNITION_DISTANCE";
     private static final String EXAMINATION_DISTANCE_SAVE_TAG = "EXAMINATION_DISTANCE";
     private static final String ACTION_DISTANCE_SAVE_TAG = "ACTION_DISTANCE";
     private static final String LAST_MEASURED_DISTANCE_SAVE_TAG = "LAST_MEASURED_DISTANCE_SAVE_TAG";
     private static final String WEIGHT_SAVE_TAG = "WEIGHT";
+    
     private String id = UUID.randomUUID().toString();
     private ObjectType type = ObjectType.PHYSICAL;
-    private boolean canBeMoved = true;
-    private float lastMeasuredDistance;
     /**
      * Distances expressed in World Units (WU)
      */
+    private InteractionType interactionType = InteractionType.PICK_UP_PUT_DOWN;
+    
     private float perceptionDistance = Float.MAX_VALUE;
     private float recognitionDistance = perceptionDistance;
     private float examinationDistance = 10; // gotta be really close
@@ -39,6 +40,8 @@ public class EgocentricContextData implements Savable {
      */
     private float actionDistance = 13;
     private float weight;
+    
+    private float lastMeasuredDistance;
 
     public String getId() {
         return id;
@@ -56,14 +59,14 @@ public class EgocentricContextData implements Savable {
         this.type = type;
     }
 
-    public boolean isCanBeMoved() {
-        return canBeMoved;
+    public InteractionType getInteractionType() {
+        return interactionType;
     }
 
-    public void setCanBeMoved(boolean canBeMoved) {
-        this.canBeMoved = canBeMoved;
-    }
-
+    public void setInteractionType(InteractionType interactionType) {
+        this.interactionType = interactionType;
+    }    
+    
     public float getPerceptionDistance() {
         return perceptionDistance;
     }
@@ -117,7 +120,7 @@ public class EgocentricContextData implements Savable {
 
         capsule.write(id, ID_SAVE_TAG, null);
         capsule.write(type, OBJECT_TYPE_SAVE_TAG, null);
-        capsule.write(canBeMoved, CAN_BE_MOVED_SAVE_TAG, canBeMoved);
+        capsule.write(interactionType, INTERACTION_TYPE_SAVE_TAG, null);
         capsule.write(perceptionDistance, PERCEPTION_DISTANCE_SAVE_TAG, perceptionDistance);
         capsule.write(recognitionDistance, RECOGNITION_DISTANCE_SAVE_TAG, recognitionDistance);
         capsule.write(examinationDistance, EXAMINATION_DISTANCE_SAVE_TAG, examinationDistance);
@@ -131,7 +134,7 @@ public class EgocentricContextData implements Savable {
 
         id = ic.readString(ID_SAVE_TAG, UUID.randomUUID().toString());
         type = ic.readEnum(OBJECT_TYPE_SAVE_TAG, ObjectType.class, ObjectType.PHYSICAL);
-        canBeMoved = ic.readBoolean(CAN_BE_MOVED_SAVE_TAG, true);
+        interactionType = ic.readEnum(INTERACTION_TYPE_SAVE_TAG, InteractionType.class, interactionType);
         perceptionDistance = ic.readFloat(PERCEPTION_DISTANCE_SAVE_TAG, Float.MAX_VALUE);
         recognitionDistance = ic.readFloat(RECOGNITION_DISTANCE_SAVE_TAG, perceptionDistance);
         examinationDistance = ic.readFloat(EXAMINATION_DISTANCE_SAVE_TAG, 10);

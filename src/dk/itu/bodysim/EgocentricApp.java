@@ -11,9 +11,9 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.system.AppSettings;
+import dk.itu.bodysim.agent.Agent;
 import dk.itu.bodysim.agent.FirstPersonAgentAppState;
 import dk.itu.bodysim.context.EgocentricContextManager;
-import dk.itu.bodysim.util.DictonaryLoader;
 
 /**
  *
@@ -24,28 +24,26 @@ public abstract class EgocentricApp extends SimpleApplication {
     private Node environmentScene;
     private BulletAppState bulletAppState;
     private RigidBodyControl landscape;
-
     private String viewPresentationTemplate;
-    
     private static EgocentricApp instance;
 
     public static EgocentricApp getInstance() {
         return instance;
     }
-    
+
     public EgocentricApp() {
         showSettings = true;
-    }    
-    
+    }
+
     @Override
     public void simpleInitApp() {
         environmentScene = createEnvironmentScene();
-        
+
         instance = this;
-        
-        assetManager.registerLoader(HtmlLoader.class, HtmlLoader.class.getName(), "html");        
+
+        assetManager.registerLoader(HtmlLoader.class, HtmlLoader.class.getName(), "html");
         viewPresentationTemplate = (String) assetManager.loadAsset("Html/all_sets.html");
-        
+
         /**
          * Set up Physics
          */
@@ -71,13 +69,13 @@ public abstract class EgocentricApp extends SimpleApplication {
 
         stateManager.attach(new NotificationsStateManager());
         stateManager.attach(new EgocentricContextManager());
-        stateManager.attach(new FirstPersonAgentAppState(bulletAppState.getPhysicsSpace()));
+        stateManager.attach(new FirstPersonAgentAppState(bulletAppState.getPhysicsSpace(), getAgentConfiguration()));
     }
 
     public AppSettings getSettings() {
         return settings;
     }
-    
+
     public Node getEnvironmentScene() {
         return environmentScene;
     }
@@ -85,15 +83,14 @@ public abstract class EgocentricApp extends SimpleApplication {
     public String getViewPresentationTemplate() {
         return viewPresentationTemplate;
     }
-    
+
     protected abstract Node createEnvironmentScene();
+
+    protected Agent getAgentConfiguration() {
+        return new Agent(new Vector3f(0, 0, 0), 15, 10);
+    }
     
-    public abstract Vector3f getInitialAgentPosition();
-    
-    /**    
-     * @return the eyesight height
-     */
-    public abstract float getAgentHeight();
-    
-    public abstract boolean shouldHighlightEntities();
+    public boolean shouldHighlightEntities() {
+        return false;
+    }
 }

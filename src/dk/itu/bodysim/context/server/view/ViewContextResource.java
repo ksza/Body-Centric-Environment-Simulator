@@ -54,7 +54,6 @@ public class ViewContextResource extends ServerResource {
         sb.append("<td>").append(userData.getId()).append("</td>");
         sb.append("<td>").append(userData.getLastMeasuredDistance()).append("</td>");
         sb.append("<td>").append(userData.getType()).append("</td>");
-        sb.append("<td>").append(userData.isCanBeMoved()).append("</td>");
         sb.append("<td>").append(userData.getPerceptionDistance()).append("</td>");
         sb.append("<td>").append(userData.getRecognitionDistance()).append("</td>");
         sb.append("<td>").append(userData.getExaminationDistance()).append("</td>");

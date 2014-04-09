@@ -18,7 +18,7 @@ public class Util {
 
     public static void highlightEntity(final SimpleApplication app, final Spatial spatial) {
 
-        if(((EgocentricApp) app).shouldHighlightEntities()) {
+        if (((EgocentricApp) app).shouldHighlightEntities()) {
             final EgocentricContextData data = spatial.getUserData(EgocentricContextData.TAG);
 
             final AmbientLight light = new AmbientLight();
@@ -42,7 +42,7 @@ public class Util {
 
     public static void removeHightlight(final SimpleApplication app, final Spatial spatial) {
 
-        if(((EgocentricApp) app).shouldHighlightEntities()) {
+        if (((EgocentricApp) app).shouldHighlightEntities()) {
             final EgocentricContextData data = spatial.getUserData(EgocentricContextData.TAG);
             final Spatial highlight = app.getRootNode().getChild(data.getId() + "_highlight");
 

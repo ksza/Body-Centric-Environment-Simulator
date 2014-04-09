@@ -60,9 +60,11 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
     private Node inventory;
     private Vector3f oldPosition = null;
     private Vector3f oldScale = null;
+    private final Agent agent;
 
-    public FirstPersonAgentAppState(PhysicsSpace physicsSpace) {
+    public FirstPersonAgentAppState(final PhysicsSpace physicsSpace, final Agent agent) {
         this.physicsSpace = physicsSpace;
+        this.agent = agent;
     }
 
     /**
@@ -85,12 +87,12 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
         inventory = new Node("Inventory");
         this.app.getGuiNode().attachChild(inventory);
 
-        characterControl = new CharacterControl(new CapsuleCollisionShape(1.5f, this.app.getAgentHeight(), 1), 0.05f);
+        characterControl = new CharacterControl(new CapsuleCollisionShape(1.5f, agent.getAgentHeight(), 1), 0.05f);
 
         characterControl.setJumpSpeed(20);
         characterControl.setFallSpeed(30);
         characterControl.setGravity(70);
-        characterControl.setPhysicsLocation(this.app.getInitialAgentPosition());
+        characterControl.setPhysicsLocation(agent.getInitialAgentPosition());
 
         physicsSpace.add(characterControl);
 
@@ -323,7 +325,7 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
 
     private void pickObjectUp(final Spatial object, final EgocentricContextData data) {
 
-        if (data.isCanBeMoved()) {
+        if (agent.canMove(data)) {
 
             Util.removeHightlight(app, object);
 

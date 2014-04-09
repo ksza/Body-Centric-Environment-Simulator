@@ -43,13 +43,13 @@ public class SimpleEnvironment extends Node {
 //        this.attachChild(makeCube("Dude", 1f, 0f, -4f, createContextData(ObjectType.PHYSICAL, false)));
 //        this.attachChild(makeFloor());        
 //        this.attachChild(makeCharacter());
-        final Geometry table1 = makeTable(false, "Table1", 0, 0, -30, ColorRGBA.Blue, createContextData("Table1", ObjectType.PHYSICAL, false, 500, 500, 200));
+        final Geometry table1 = makeTable(false, "Table1", 0, 0, -30, ColorRGBA.Blue, createContextData("Table1", ObjectType.PHYSICAL, 30, 500, 500, 200));
         this.attachChild(table1);
-        this.attachChild(makeCylinder("Pen", -1, 2.1f, -30.1f, ColorRGBA.Red, createContextData("Pen", ObjectType.PHYSICAL, true, 200, 80, 50)));
-        this.attachChild(makeCharacter(2f, 3f, -30.5f, createContextData("Statue", ObjectType.PHYSICAL, true, 350, 150, 70)));
+        this.attachChild(makeCylinder("Pen", -1, 2.1f, -30.1f, ColorRGBA.Red, createContextData("Pen", ObjectType.PHYSICAL, 0.05f, 200, 80, 50)));
+        this.attachChild(makeCharacter(2f, 3f, -30.5f, createContextData("Statue", ObjectType.PHYSICAL, 1, 350, 150, 70)));
         this.attachChild(makeFloor());
 
-        final Geometry table2 = makeTable(true, "Table2", 50, 0, 10, ColorRGBA.Blue, createContextData("Table2", ObjectType.PHYSICAL, false, 500, 500, 200));
+        final Geometry table2 = makeTable(true, "Table2", 50, 0, 10, ColorRGBA.Blue, createContextData("Table2", ObjectType.PHYSICAL, 30, 500, 500, 200));
         this.attachChild(table2);
         
         DirectionalLight dl = new DirectionalLight();
@@ -58,15 +58,15 @@ public class SimpleEnvironment extends Node {
         this.addLight(dl);
     }
 
-    private EgocentricContextData createContextData(final String id, final ObjectType type, final boolean canBeMoved, final float perceptionDistance, final float recognitionDistance, final float examinationDistance) {
+    private EgocentricContextData createContextData(final String id, final ObjectType type, final float weight, final float perceptionDistance, final float recognitionDistance, final float examinationDistance) {
         final EgocentricContextData data = new EgocentricContextData();
 
         data.setId(id);
         data.setType(type);
-        data.setCanBeMoved(canBeMoved);
         data.setPerceptionDistance(perceptionDistance);
         data.setExaminationDistance(examinationDistance);
         data.setRecognitionDistance(recognitionDistance);
+        data.setWeight(weight);
 
         return data;
     }
