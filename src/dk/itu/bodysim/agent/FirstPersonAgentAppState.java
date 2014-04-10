@@ -5,8 +5,6 @@ import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.bounding.BoundingBox;
-import com.jme3.bounding.BoundingSphere;
-import com.jme3.bounding.BoundingVolume;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
@@ -266,8 +264,12 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                                     
 //                                    newPosition.setY(targetBounds.getCenter().getY() + targetBounds.getYExtent() + radius * 2);
                                     
-                                    newPosition.setY(targetExtent.y);
-                                    newPosition.setZ(targetBounds.getCenter().getZ());
+//                                    if(agent.getPlacementHeight() > 0) {
+//                                        newPosition.setY(agent.getPlacementHeight());
+//                                    } else {
+//                                        newPosition.setY(targetExtent.y);
+//                                    }
+//                                    newPosition.setZ(targetBounds.getCenter().getZ());
 
                                     // scale back
                                     s1.setLocalScale(oldScale);

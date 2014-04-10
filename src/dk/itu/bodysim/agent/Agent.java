@@ -16,7 +16,7 @@ public class Agent {
     private final Vector3f initialAgentPosition;
     private final float agentHeight;
     private final float agentMaxCarryWeight;
-
+    
     public Agent(Vector3f initialAgentPosition, float agentHeight, float agentMaxCarryWeight) {
         this.initialAgentPosition = initialAgentPosition;
         this.agentHeight = agentHeight;
@@ -46,5 +46,5 @@ public class Agent {
         }
         
         return false;
-    }
+    }   
 }

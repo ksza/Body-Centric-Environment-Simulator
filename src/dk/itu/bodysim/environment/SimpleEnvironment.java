@@ -44,7 +44,9 @@ public class SimpleEnvironment extends Node {
 //        this.attachChild(makeCube("Dude", 1f, 0f, -4f, createContextData(ObjectType.PHYSICAL, false)));
 //        this.attachChild(makeFloor());        
 //        this.attachChild(makeCharacter());
-        final Geometry table1 = makeTable(false, "Table1", 0, 0, -30, ColorRGBA.Blue, createContextData("Table1", ObjectType.PHYSICAL, 30, 500, 500, 200));
+        final EgocentricContextData table1Data = createContextData("Table1", ObjectType.PHYSICAL, 30, 500, 500, 200);
+        table1Data.setSurface(true);
+        final Geometry table1 = makeTable(false, "Table1", 0, 0, -30, ColorRGBA.Blue, table1Data);        
         this.attachChild(table1);
         
         final EgocentricContextData penData = createContextData("Pen", ObjectType.PHYSICAL, 0.05f, 200, 80, 50);
@@ -57,7 +59,9 @@ public class SimpleEnvironment extends Node {
         this.attachChild(makeCharacter(2f, 3f, -30.5f, statueData));
         
         this.attachChild(makeFloor());
-        final Geometry table2 = makeTable(true, "Table2", 50, 0, 10, ColorRGBA.Blue, createContextData("Table2", ObjectType.PHYSICAL, 30, 500, 500, 200));
+        final EgocentricContextData table2Data = createContextData("Table2", ObjectType.PHYSICAL, 30, 500, 500, 200);
+        table2Data.setSurface(true);
+        final Geometry table2 = makeTable(true, "Table2", 50, 0, 10, ColorRGBA.Blue, table2Data);
         this.attachChild(table2);
         
         DirectionalLight dl = new DirectionalLight();
