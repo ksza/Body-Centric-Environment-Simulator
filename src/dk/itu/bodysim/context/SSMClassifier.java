@@ -72,7 +72,7 @@ public class SSMClassifier implements Runnable {
                 final float distance = cam.getLocation().distance(element.getWorldTranslation());
                 data.setLastMeasuredDistance(distance);
 
-                System.out.println(data.getId() + " : " + distance);
+//                System.out.println(data.getId() + " : " + distance);
 
                 result.add(element);
             }
@@ -82,6 +82,10 @@ public class SSMClassifier implements Runnable {
     }
 
     private boolean isOnScreen(Spatial s) {
+        if(s == null) {
+            return false;
+        }
+        
         BoundingVolume bv = s.getWorldBound();
         int planeState = cam.getPlaneState();
         cam.setPlaneState(0);

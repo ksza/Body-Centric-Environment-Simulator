@@ -5,6 +5,8 @@ import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingSphere;
+import com.jme3.bounding.BoundingVolume;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
@@ -20,6 +22,8 @@ import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
+import com.jme3.light.DirectionalLight;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
@@ -86,6 +90,10 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
         this.rootNode = this.app.getRootNode();
 
         inventory = new Node("Inventory");
+        DirectionalLight dl1 = new DirectionalLight();
+        dl1.setColor(ColorRGBA.White);
+        dl1.setDirection(new Vector3f(2.8f, -2.8f, -2.8f).normalizeLocal());
+        inventory.addLight(dl1);
         this.app.getGuiNode().attachChild(inventory);
 
         characterControl = new CharacterControl(new CapsuleCollisionShape(1.5f, agent.getAgentHeight(), 1), 0.05f);
@@ -240,7 +248,7 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
 
                         final Spatial s1 = inventory.getChild(0);
                         final EgocentricContextData s1Data = s1.getUserData(EgocentricContextData.TAG);
-                        
+
                         final EgocentricContextData data = s.getUserData(EgocentricContextData.TAG);
                         /* take into consideration only objects having contextual data */
                         if (data != null && !s.equals(environment)) {
@@ -249,12 +257,16 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
 
                             if (actionSpace.contains(s)) {
 
-                                if(data.isSurface()) {
+                                if (data.isSurface()) {
+
                                     final BoundingBox targetBounds = (BoundingBox) s.getWorldBound();
+                                    final Vector3f targetExtent = targetBounds.getExtent(new Vector3f());
                                     final Vector3f newPosition = closest.getContactPoint();
-                                    float radius = ((BoundingBox) s1.getWorldBound()).getCenter().getY();
+                                    float radius = ((BoundingBox) s1.getWorldBound()).getExtent(new Vector3f()).y;
+                                    
 //                                    newPosition.setY(targetBounds.getCenter().getY() + targetBounds.getYExtent() + radius * 2);
-                                    newPosition.setY(targetBounds.getYExtent());
+                                    
+                                    newPosition.setY(targetExtent.y);
                                     newPosition.setZ(targetBounds.getCenter().getZ());
 
                                     // scale back
@@ -297,8 +309,8 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                         if (data != null && !s.equals(environment)) {
 
                             if (actionSpace.contains(s)) {
-                                
-                                if(data.getInteractionType() == InteractionType.PICK_UP) {
+
+                                if (data.getInteractionType() == InteractionType.PICK_UP) {
                                     if (data.getType() == ObjectType.PHYSICAL) {
                                         pickObjectUp(s, data);
                                     } else if (data.getType() == ObjectType.MEDIATOR) {

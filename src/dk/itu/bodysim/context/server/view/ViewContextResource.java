@@ -54,9 +54,12 @@ public class ViewContextResource extends ServerResource {
         sb.append("<td>").append(userData.getId()).append("</td>");
         sb.append("<td>").append(userData.getLastMeasuredDistance()).append("</td>");
         sb.append("<td>").append(userData.getType()).append("</td>");
-        sb.append("<td>").append(userData.getPerceptionDistance()).append("</td>");
-        sb.append("<td>").append(userData.getRecognitionDistance()).append("</td>");
-        sb.append("<td>").append(userData.getExaminationDistance()).append("</td>");
+        sb.append("<td>").append(userData.isSurface()).append("</td>");
+        sb.append("<td>").append(userData.getInteractionType()).append("</td>");
+//        sb.append("<td>").append(userData.getWeight()).append("</td>");
+//        sb.append("<td>").append(userData.getPerceptionDistance()).append("</td>");
+//        sb.append("<td>").append(userData.getRecognitionDistance()).append("</td>");
+//        sb.append("<td>").append(userData.getExaminationDistance()).append("</td>");
         sb.append("</tr>");
         
         return sb.toString();
@@ -80,10 +83,12 @@ public class ViewContextResource extends ServerResource {
         sb.append("<th>").append("</th>");
         sb.append("<th>").append("Last distance from agent").append("</th>");
         sb.append("<th>").append("Type").append("</th>");
-        sb.append("<th>").append("Can be moved").append("</th>");
-        sb.append("<th>").append("Perception Distance (WU)").append("</th>");
-        sb.append("<th>").append("Recognition Distance (WU)").append("</th>");
-        sb.append("<th>").append("Examination Distance (WU)").append("</th>");
+        sb.append("<th>").append("Is Surface").append("</th>");
+        sb.append("<th>").append("Interaction Type").append("</th>");
+//        sb.append("<th>").append("Weight").append("</th>");
+//        sb.append("<th>").append("Perception Distance (WU)").append("</th>");
+//        sb.append("<th>").append("Recognition Distance (WU)").append("</th>");
+//        sb.append("<th>").append("Examination Distance (WU)").append("</th>");
         sb.append("</tr>");
         
         for(final Spatial entity: collectedSpatials) {

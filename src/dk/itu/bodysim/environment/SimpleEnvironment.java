@@ -74,7 +74,7 @@ public class SimpleEnvironment extends Node {
         data.setPerceptionDistance(perceptionDistance);
         data.setExaminationDistance(examinationDistance);
         data.setRecognitionDistance(recognitionDistance);
-        data.setWeight(weight);
+        data.setWeight((int) weight);
 
         return data;
     }
