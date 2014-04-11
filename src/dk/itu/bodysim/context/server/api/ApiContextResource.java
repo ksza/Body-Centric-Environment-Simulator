@@ -3,7 +3,6 @@ package dk.itu.bodysim.context.server.api;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.jme3.scene.Spatial;
 import dk.itu.bodysim.context.EgocentricContextData;
 import dk.itu.bodysim.context.EgocentricContextManager;

@@ -89,7 +89,7 @@ public abstract class EgocentricApp extends SimpleApplication {
     protected Agent getAgentConfiguration() {
         return new Agent(new Vector3f(0, 0, 0), 15, 10);
     }
-    
+
     public boolean shouldHighlightEntities() {
         return false;
     }

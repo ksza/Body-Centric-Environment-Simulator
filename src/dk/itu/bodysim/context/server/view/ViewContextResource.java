@@ -40,16 +40,16 @@ public class ViewContextResource extends ServerResource {
         }
 
         sb.append("</tr>");
-        
+
         return sb.toString();
     }
 
     private String serializeEntityContext(final Spatial entity) {
-        
+
         final StringBuilder sb = new StringBuilder();
-        
+
         final EgocentricContextData userData = entity.getUserData(EgocentricContextData.TAG);
-        
+
         sb.append("<tr>");
         sb.append("<td>").append(userData.getId()).append("</td>");
         sb.append("<td>").append(userData.getLastMeasuredDistance()).append("</td>");
@@ -61,24 +61,24 @@ public class ViewContextResource extends ServerResource {
 //        sb.append("<td>").append(userData.getRecognitionDistance()).append("</td>");
 //        sb.append("<td>").append(userData.getExaminationDistance()).append("</td>");
         sb.append("</tr>");
-        
+
         return sb.toString();
     }
-    
+
     private String toHtml(final String... setNames) {
         String result = "_error_";
 
         final StringBuilder sb = new StringBuilder();
 
         sb.append("<br>").append("<h3>SSM Spaces</h3>").append("<table>");
-        
+
         final Set<Spatial> collectedSpatials = new HashSet<Spatial>();
         for (final String setName : setNames) {
             sb.append(serilizeSet(setName, collectedSpatials));
         }
-        
+
         sb.append("</table>").append("<br><br><br>").append("<h3>Entity Context Data</h3>").append("<table>");
-           
+
         sb.append("<tr>");
         sb.append("<th>").append("</th>");
         sb.append("<th>").append("Last distance from agent").append("</th>");
@@ -90,13 +90,13 @@ public class ViewContextResource extends ServerResource {
 //        sb.append("<th>").append("Recognition Distance (WU)").append("</th>");
 //        sb.append("<th>").append("Examination Distance (WU)").append("</th>");
         sb.append("</tr>");
-        
-        for(final Spatial entity: collectedSpatials) {
+
+        for (final Spatial entity : collectedSpatials) {
             sb.append(serializeEntityContext(entity));
         }
-        
+
         sb.append("</table>").append("<small>* WU = expressed in World Units</small>");
-        
+
         final String serializedValue = sb.toString();
         if (serializedValue != null && serializedValue.length() > 0) {
             result = data.replace("<<DATA>>", sb.toString());
@@ -110,14 +110,14 @@ public class ViewContextResource extends ServerResource {
 
         final String paramValue = getQueryValue("name");
         StringRepresentation stringRep;
-        
-        if("all".equalsIgnoreCase(paramValue)) {
+
+        if ("all".equalsIgnoreCase(paramValue)) {
             final String allSpace = toHtml("worldSpace", "perceptionSpace", "recognizableSet", "examinableSet", "actionSpace", "selectedSet", "manipulatedSet");
             stringRep = new StringRepresentation(allSpace, MediaType.TEXT_HTML);
         } else {
             stringRep = new StringRepresentation(toHtml(paramValue), MediaType.TEXT_HTML);
         }
-             
+
         return stringRep;
     }
 }

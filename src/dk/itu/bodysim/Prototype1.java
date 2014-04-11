@@ -19,10 +19,10 @@ public class Prototype1 extends EgocentricApp {
     @Override
     protected Node createEnvironmentScene() {
         return new SimpleEnvironment(getAssetManager());
-    }      
+    }
 
     @Override
     protected Agent getAgentConfiguration() {
-       return new Agent(new Vector3f(0, 10, 30), 15, 15);
+        return new Agent(new Vector3f(0, 10, 30), 15, 15);
     }
 }

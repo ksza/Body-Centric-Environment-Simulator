@@ -42,9 +42,8 @@ public class EgocentricContextManager extends AbstractAppState {
     private boolean computing = false;
     private SSMBundle ssmBundle;
     private Set<Spatial> worldSpace;
-    
     private SSMClassifier ssmClassifier;
-    
+
     public static EgocentricContextManager getInstance() {
         return instance;
     }
@@ -102,45 +101,9 @@ public class EgocentricContextManager extends AbstractAppState {
         this.computing = computing;
     }
 
-//    /**
-//     * Get the set of currently visible items and update the distance from the
-//     * agent!
-//     *
-//     * @return
-//     */
-//    private Set<Spatial> updateVisibleEntitiesContext() {
-//
-//        final Set<Spatial> result = new HashSet<Spatial>();
-//
-//        for (final Spatial element : worldSpace) {
-//            if (isOnScreen(element)) {
-//
-//                final EgocentricContextData data = element.getUserData(EgocentricContextData.TAG);
-//
-//                final float distance = cam.getLocation().distance(element.getWorldTranslation());
-//                data.setLastMeasuredDistance(distance);
-//
-//                System.out.println(data.getId() + " : " + distance);
-//
-//                result.add(element);
-//            }
-//        }
-//
-//        return result;
-//    }
-//
-//    private boolean isOnScreen(Spatial s) {
-//        BoundingVolume bv = s.getWorldBound();
-//        int planeState = cam.getPlaneState();
-//        cam.setPlaneState(0);
-//        Camera.FrustumIntersect result = cam.contains(bv);
-//        cam.setPlaneState(planeState);
-//        return result == Camera.FrustumIntersect.Inside || result == Camera.FrustumIntersect.Intersects;
-//    }
-
     public void determineSpaces(final Node node) {
 
-        if(ssmClassifier == null || ssmClassifier.isDone()) {
+        if (ssmClassifier == null || ssmClassifier.isDone()) {
             ssmClassifier = new SSMClassifier(worldSpace, cam.clone(), rootNode);
             new Thread(ssmClassifier).start();
         }

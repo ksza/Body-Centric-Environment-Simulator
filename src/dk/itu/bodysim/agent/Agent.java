@@ -16,7 +16,7 @@ public class Agent {
     private final Vector3f initialAgentPosition;
     private final float agentHeight;
     private final float agentMaxCarryWeight;
-    
+
     public Agent(Vector3f initialAgentPosition, float agentHeight, float agentMaxCarryWeight) {
         this.initialAgentPosition = initialAgentPosition;
         this.agentHeight = agentHeight;
@@ -40,11 +40,11 @@ public class Agent {
      */
     public boolean canMove(final EgocentricContextData object) {
 
-        if(object != null && object.getInteractionType() == InteractionType.PICK_UP) {
-            
+        if (object != null && object.getInteractionType() == InteractionType.PICK_UP) {
+
             return object.getWeight() <= agentMaxCarryWeight;
         }
-        
+
         return false;
-    }   
+    }
 }

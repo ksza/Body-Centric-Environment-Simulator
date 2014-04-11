@@ -261,9 +261,9 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                                     final Vector3f targetExtent = targetBounds.getExtent(new Vector3f());
                                     final Vector3f newPosition = closest.getContactPoint();
                                     float radius = ((BoundingBox) s1.getWorldBound()).getExtent(new Vector3f()).y;
-                                    
+
 //                                    newPosition.setY(targetBounds.getCenter().getY() + targetBounds.getYExtent() + radius * 2);
-                                    
+
 //                                    if(agent.getPlacementHeight() > 0) {
 //                                        newPosition.setY(agent.getPlacementHeight());
 //                                    } else {

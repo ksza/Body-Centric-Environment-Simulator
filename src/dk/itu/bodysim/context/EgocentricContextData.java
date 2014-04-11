@@ -25,7 +25,6 @@ public class EgocentricContextData implements Savable {
     private static final String LAST_MEASURED_DISTANCE_SAVE_TAG = "LAST_MEASURED_DISTANCE_SAVE_TAG";
     private static final String WEIGHT_SAVE_TAG = "WEIGHT";
     private static final String SURFACE_TAG = "SURFACE";
-    
     private String id = UUID.randomUUID().toString();
     private ObjectType type = ObjectType.PHYSICAL;
     /**
@@ -36,7 +35,6 @@ public class EgocentricContextData implements Savable {
      * If you can place other objects on top of this.
      */
     private boolean surface = false;
-    
     private float perceptionDistance = Float.MAX_VALUE;
     private float recognitionDistance = perceptionDistance;
     private float examinationDistance = 20; // gotta be really close
@@ -45,7 +43,6 @@ public class EgocentricContextData implements Savable {
      */
     private float actionDistance = 13;
     private float weight;
-    
     private float lastMeasuredDistance;
 
     public String getId() {
@@ -70,8 +67,8 @@ public class EgocentricContextData implements Savable {
 
     public void setInteractionType(InteractionType interactionType) {
         this.interactionType = interactionType;
-    }    
-    
+    }
+
     public float getPerceptionDistance() {
         return perceptionDistance;
     }
@@ -103,7 +100,7 @@ public class EgocentricContextData implements Savable {
     public void setActionDistance(float actionDistance) {
         this.actionDistance = actionDistance;
     }
-    
+
     public float getWeight() {
         return weight;
     }
@@ -119,7 +116,7 @@ public class EgocentricContextData implements Savable {
     public boolean isSurface() {
         return surface;
     }
-    
+
     public float getLastMeasuredDistance() {
         return lastMeasuredDistance;
     }
@@ -132,16 +129,16 @@ public class EgocentricContextData implements Savable {
         final OutputCapsule capsule = ex.getCapsule(this);
 
         capsule.write(id, ID_SAVE_TAG, "no_id");
-        capsule.write(surface, SURFACE_TAG, false); 
+        capsule.write(surface, SURFACE_TAG, false);
         capsule.write(type, OBJECT_TYPE_SAVE_TAG, ObjectType.PHYSICAL);
         capsule.write(interactionType, INTERACTION_TYPE_SAVE_TAG, InteractionType.PICK_UP);
-        capsule.write(weight, WEIGHT_SAVE_TAG, weight);                
-        
+        capsule.write(weight, WEIGHT_SAVE_TAG, weight);
+
         capsule.write(perceptionDistance, PERCEPTION_DISTANCE_SAVE_TAG, perceptionDistance);
         capsule.write(recognitionDistance, RECOGNITION_DISTANCE_SAVE_TAG, recognitionDistance);
         capsule.write(examinationDistance, EXAMINATION_DISTANCE_SAVE_TAG, examinationDistance);
         capsule.write(actionDistance, ACTION_DISTANCE_SAVE_TAG, actionDistance);
-        
+
         capsule.write(lastMeasuredDistance, LAST_MEASURED_DISTANCE_SAVE_TAG, 0);
     }
 
@@ -149,16 +146,16 @@ public class EgocentricContextData implements Savable {
         final InputCapsule ic = im.getCapsule(this);
 
         id = ic.readString(ID_SAVE_TAG, UUID.randomUUID().toString());
-        surface = ic.readBoolean(SURFACE_TAG, false);        
+        surface = ic.readBoolean(SURFACE_TAG, false);
         type = ic.readEnum(OBJECT_TYPE_SAVE_TAG, ObjectType.class, ObjectType.PHYSICAL);
         interactionType = ic.readEnum(INTERACTION_TYPE_SAVE_TAG, InteractionType.class, interactionType);
         weight = ic.readFloat(WEIGHT_SAVE_TAG, 0);
-        
+
         perceptionDistance = ic.readFloat(PERCEPTION_DISTANCE_SAVE_TAG, Float.MAX_VALUE);
         recognitionDistance = ic.readFloat(RECOGNITION_DISTANCE_SAVE_TAG, perceptionDistance);
         examinationDistance = ic.readFloat(EXAMINATION_DISTANCE_SAVE_TAG, 10);
         actionDistance = ic.readFloat(ACTION_DISTANCE_SAVE_TAG, 13);
-        
-        lastMeasuredDistance = ic.readFloat(LAST_MEASURED_DISTANCE_SAVE_TAG, 0);       
+
+        lastMeasuredDistance = ic.readFloat(LAST_MEASURED_DISTANCE_SAVE_TAG, 0);
     }
 }
