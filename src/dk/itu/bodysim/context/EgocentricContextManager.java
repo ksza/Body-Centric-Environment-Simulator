@@ -141,7 +141,7 @@ public class EgocentricContextManager extends AbstractAppState {
     public void determineSpaces(final Node node) {
 
         if(ssmClassifier == null || ssmClassifier.isDone()) {
-            ssmClassifier = new SSMClassifier(worldSpace, cam.clone());
+            ssmClassifier = new SSMClassifier(worldSpace, cam.clone(), rootNode);
             new Thread(ssmClassifier).start();
         }
     }

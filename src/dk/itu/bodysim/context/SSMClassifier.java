@@ -1,7 +1,12 @@
 package dk.itu.bodysim.context;
 
 import com.jme3.bounding.BoundingVolume;
+import com.jme3.collision.CollisionResult;
+import com.jme3.collision.CollisionResults;
+import com.jme3.math.Ray;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import dk.itu.bodysim.context.ssm.ActionSpaceStrategy;
 import dk.itu.bodysim.context.ssm.ExaminableSetStrategy;
@@ -23,15 +28,17 @@ public class SSMClassifier implements Runnable {
     private Boolean done = false;
     private final Set<Spatial> worldSpace;
     private final Camera cam;
+    private final Node environment;
     private SSMBundle ssmBundle = SSMBundle.getInstance();
     private final SSMSpaceComputationStrategy perceptionSpaceStrategy;
     private final SSMSpaceComputationStrategy recognizableSetStrategy;
     private final SSMSpaceComputationStrategy examinableSetStrategy;
     private final SSMSpaceComputationStrategy actionSpaceStrategy;
 
-    public SSMClassifier(final Set<Spatial> worldSpace, final Camera cam) {
+    public SSMClassifier(final Set<Spatial> worldSpace, final Camera cam, final Node environment) {
         this.worldSpace = worldSpace;
         this.cam = cam;
+        this.environment = environment;
 
         perceptionSpaceStrategy = new PerceptionSpaceStrategy(cam);
         recognizableSetStrategy = new RecognizableSetStrategy(cam);
@@ -48,8 +55,8 @@ public class SSMClassifier implements Runnable {
         ssmBundle.putSet(SSMSpaceType.RECOGNIZABLE_SET, recognizableSetStrategy.determineSet(onScreenEntities));
         ssmBundle.putSet(SSMSpaceType.EXAMINABLE_SET, examinableSetStrategy.determineSet(onScreenEntities));
         ssmBundle.putSet(SSMSpaceType.ACTION_SPACE, actionSpaceStrategy.determineSet(onScreenEntities));
-        
-        synchronized(done) {
+
+        synchronized (done) {
             done = true;
         }
     }
@@ -72,8 +79,6 @@ public class SSMClassifier implements Runnable {
                 final float distance = cam.getLocation().distance(element.getWorldTranslation());
                 data.setLastMeasuredDistance(distance);
 
-//                System.out.println(data.getId() + " : " + distance);
-
                 result.add(element);
             }
         }
@@ -81,21 +86,46 @@ public class SSMClassifier implements Runnable {
         return result;
     }
 
-    private boolean isOnScreen(Spatial s) {
-        if(s == null) {
+    private boolean isOnScreen(Spatial spatial) {
+        if (spatial == null) {
             return false;
         }
-        
-        BoundingVolume bv = s.getWorldBound();
+
+        BoundingVolume bv = spatial.getWorldBound();
         int planeState = cam.getPlaneState();
         cam.setPlaneState(0);
         Camera.FrustumIntersect result = cam.contains(bv);
         cam.setPlaneState(planeState);
-        return result == Camera.FrustumIntersect.Inside || result == Camera.FrustumIntersect.Intersects;
+        if (result == Camera.FrustumIntersect.Inside || result == Camera.FrustumIntersect.Intersects) {
+
+            final Vector3f direction = spatial.getWorldTranslation().subtract(cam.getLocation());
+            final Ray ray = new Ray(cam.getLocation(), direction);
+
+            final CollisionResults collisionResults = new CollisionResults();
+            environment.collideWith(ray, collisionResults);
+
+            final CollisionResult closestResult = collisionResults.getClosestCollision();
+            if (closestResult != null) {
+                Spatial closestGeometry = closestResult.getGeometry();
+
+                while (closestGeometry != null && !closestGeometry.getUserDataKeys().contains(EgocentricContextData.TAG)) {
+                    closestGeometry = closestGeometry.getParent();
+                }
+
+                if (closestGeometry != null) {
+                    final EgocentricContextData data = closestGeometry.getUserData(EgocentricContextData.TAG);
+                    return data != null && closestGeometry.equals(spatial);
+                }
+            }
+
+            return false;
+        }
+
+        return false;
     }
 
     public boolean isDone() {
-        synchronized(done) {
+        synchronized (done) {
             return done;
         }
     }
