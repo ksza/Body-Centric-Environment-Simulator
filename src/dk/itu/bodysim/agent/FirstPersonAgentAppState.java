@@ -4,7 +4,6 @@ import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
-import com.jme3.bounding.BoundingBox;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
@@ -212,13 +211,6 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
         characterControl.setWalkDirection(agentWalkDirection);
         cam.setLocation(characterControl.getPhysicsLocation());
     }
-//    private ActionListener computeSpacesListener = new ActionListener() {
-//        public void onAction(String name, boolean isPressed, float tpf) {
-//            if (name.equals("ComputeSpaces") && !isPressed) {
-//                stateManager.getState(EgocentricContextManager.class).determineSpaces(environment);
-//            }
-//        }
-//    };
     private AnalogListener computeSpacesListener = new AnalogListener() {
         public void onAnalog(String name, float value, float tpf) {
             if (name.equals("ComputeSpaces")) {
@@ -257,10 +249,10 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
 
                                 if (data.isSurface()) {
 
-                                    final BoundingBox targetBounds = (BoundingBox) s.getWorldBound();
-                                    final Vector3f targetExtent = targetBounds.getExtent(new Vector3f());
+//                                    final BoundingBox targetBounds = (BoundingBox) s.getWorldBound();
+//                                    final Vector3f targetExtent = targetBounds.getExtent(new Vector3f());
                                     final Vector3f newPosition = closest.getContactPoint();
-                                    float radius = ((BoundingBox) s1.getWorldBound()).getExtent(new Vector3f()).y;
+//                                    float radius = ((BoundingBox) s1.getWorldBound()).getExtent(new Vector3f()).y;
 
 //                                    newPosition.setY(targetBounds.getCenter().getY() + targetBounds.getYExtent() + radius * 2);
 
@@ -280,7 +272,7 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
 
                                     stateManager.getState(EgocentricContextManager.class).droppedDown(s1);
                                 } else {
-                                    stateManager.getState(NotificationsStateManager.class).addNotification("(Interact using " + s1Data.getId() + ") with " + data.getId() + ", not implemented!");
+                                    app.onCombinedInteraction(s1, s);
                                 }
                             } else {
                                 stateManager.getState(NotificationsStateManager.class).addNotification("(Interact using " + s1Data.getId() + ") with " + data.getId() + ", you are too far!");
@@ -313,13 +305,9 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
                             if (actionSpace.contains(s)) {
 
                                 if (data.getInteractionType() == InteractionType.PICK_UP) {
-                                    if (data.getType() == ObjectType.PHYSICAL) {
-                                        pickObjectUp(s, data);
-                                    } else if (data.getType() == ObjectType.MEDIATOR) {
-                                        interactWithMediator(s, data);
-                                    }
-                                } else {
-                                    stateManager.getState(NotificationsStateManager.class).addNotification("(Interact) " + data.getId() + ", support for custom interactions not yet implemented!");
+                                    pickObjectUp(s, data);
+                                } else if(data.getInteractionType() == InteractionType.CUSTOM) {
+                                    app.onCustomInteraction(s);
                                 }
                             } else {
                                 stateManager.getState(NotificationsStateManager.class).addNotification("(Interact) " + data.getId() + ", you are too far!");
@@ -370,9 +358,5 @@ public class FirstPersonAgentAppState extends AbstractAppState implements Action
         } else {
             stateManager.getState(NotificationsStateManager.class).addNotification("(Pick-up) " + data.getId() + ", too heavy for you! Can't be picked up!");
         }
-    }
-
-    private void interactWithMediator(final Spatial object, final EgocentricContextData data) {
-        stateManager.getState(NotificationsStateManager.class).addNotification("(Interaction) " + data.getId() + ", not yet implemented for mediators!");
     }
 }

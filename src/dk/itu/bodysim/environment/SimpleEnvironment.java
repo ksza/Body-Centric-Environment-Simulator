@@ -54,6 +54,7 @@ public class SimpleEnvironment extends Node {
         this.attachChild(makeCylinder("Pen", -1, 2.1f, -30.1f, ColorRGBA.Red, penData));
         
         final EgocentricContextData statueData = createContextData("Statue", ObjectType.PHYSICAL, 1, 350, 150, 70);
+        statueData.setActionDistance(17);
         statueData.setSurface(false);  
         statueData.setInteractionType(InteractionType.CUSTOM);
         this.attachChild(makeCharacter(2f, 3f, -30.5f, statueData));

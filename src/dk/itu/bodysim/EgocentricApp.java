@@ -10,10 +10,13 @@ import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.system.AppSettings;
 import dk.itu.bodysim.agent.Agent;
 import dk.itu.bodysim.agent.FirstPersonAgentAppState;
+import dk.itu.bodysim.context.EgocentricContextData;
 import dk.itu.bodysim.context.EgocentricContextManager;
+import dk.itu.bodysim.context.ObjectType;
 
 /**
  *
@@ -92,5 +95,22 @@ public abstract class EgocentricApp extends SimpleApplication {
 
     public boolean shouldHighlightEntities() {
         return false;
+    }
+    
+    public void onCustomInteraction(final Spatial spatial) {
+        
+        final EgocentricContextData data = spatial.getUserData(EgocentricContextData.TAG);
+        stateManager.getState(NotificationsStateManager.class).addNotification("(Interact) " + data.getId() + ", support for custom interactions not yet implemented!");
+    }
+    
+    /**
+     * Make the "pickedUpObject" interact with the "withObject"
+     */
+    public void onCombinedInteraction(final Spatial pickedUpObject, final Spatial withObject) {
+        
+        final EgocentricContextData data1 = pickedUpObject.getUserData(EgocentricContextData.TAG);
+        final EgocentricContextData data2 = withObject.getUserData(EgocentricContextData.TAG);
+        
+        stateManager.getState(NotificationsStateManager.class).addNotification("(Interact using " + data1.getId() + ") with " + data2.getId() + ", not implemented!");
     }
 }
