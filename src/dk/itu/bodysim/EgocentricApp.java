@@ -16,7 +16,6 @@ import dk.itu.bodysim.agent.Agent;
 import dk.itu.bodysim.agent.FirstPersonAgentAppState;
 import dk.itu.bodysim.context.EgocentricContextData;
 import dk.itu.bodysim.context.EgocentricContextManager;
-import dk.itu.bodysim.context.ObjectType;
 
 /**
  *

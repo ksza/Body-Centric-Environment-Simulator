@@ -37,7 +37,7 @@ public class EgocentricContextData implements Savable {
     private boolean surface = false;
     private float perceptionDistance = Float.MAX_VALUE;
     private float recognitionDistance = perceptionDistance;
-    private float examinationDistance = 20; // gotta be really close
+    private float examinationDistance = 20;
     /**
      * Some objects don't fit into the normal range distance
      */
@@ -153,7 +153,7 @@ public class EgocentricContextData implements Savable {
 
         perceptionDistance = ic.readFloat(PERCEPTION_DISTANCE_SAVE_TAG, Float.MAX_VALUE);
         recognitionDistance = ic.readFloat(RECOGNITION_DISTANCE_SAVE_TAG, perceptionDistance);
-        examinationDistance = ic.readFloat(EXAMINATION_DISTANCE_SAVE_TAG, 10);
+        examinationDistance = ic.readFloat(EXAMINATION_DISTANCE_SAVE_TAG, 20);
         actionDistance = ic.readFloat(ACTION_DISTANCE_SAVE_TAG, 13);
 
         lastMeasuredDistance = ic.readFloat(LAST_MEASURED_DISTANCE_SAVE_TAG, 0);
