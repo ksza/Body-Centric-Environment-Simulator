@@ -54,10 +54,10 @@ public class SimpleEnvironment extends Node {
         this.attachChild(makeCylinder("Pen", -1, 2.1f, -30.1f, ColorRGBA.Red, penData));
         
         final EgocentricContextData statueData = createContextData("Statue", ObjectType.PHYSICAL, 1, 350, 150, 70);
-        statueData.setActionDistance(17);
         statueData.setSurface(false);  
         statueData.setInteractionType(InteractionType.CUSTOM);
-        this.attachChild(makeCharacter(2f, 3f, -30.5f, statueData));
+//        this.attachChild(makeCharacter(2f, 3f, -30.5f, statueData));
+        this.attachChild(makeSphere("Statue", 2f, 3f, -30.5f, ColorRGBA.Blue, statueData));
         
         this.attachChild(makeFloor());
         final EgocentricContextData table2Data = createContextData("Table2", ObjectType.PHYSICAL, 30, 500, 500, 200);
@@ -126,7 +126,7 @@ public class SimpleEnvironment extends Node {
     }
 
     private Geometry makeSphere(String name, float x, float y, float z, ColorRGBA color, EgocentricContextData data) {
-        Sphere sphere = new Sphere(30, 30, 0.1f);
+        Sphere sphere = new Sphere(30, 30, 1.3f);
         Geometry sphereGeom = new Geometry(name, sphere);
         sphereGeom.setLocalTranslation(x, y, z);
         Material mat1 = new Material(this.assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
